@@ -33,6 +33,7 @@ public:
     filtre& operator=(filtre f);
 
     void appliqueFiltre(IplImage* img, IplImage *res);
+    void appliqueFiltreCouleur(IplImage* img, IplImage *res);
 };
 
 #endif

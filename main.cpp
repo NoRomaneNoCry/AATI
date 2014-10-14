@@ -5,7 +5,9 @@
 
 #include "filtre.h"
 #include "filtrePrewitt.h"
-
+#include "filtreSobel.h"
+#include "filtreKirsch.h"
+#include "filtreLaplacien.h"
 
 
 int main (int argc, char* argv[])
@@ -30,7 +32,7 @@ int main (int argc, char* argv[])
   if (argc > 2) 
     dst_path = argv[2];
 
-  if (!(img = cvLoadImage (src_path, CV_LOAD_IMAGE_GRAYSCALE)))
+  if (!(img = cvLoadImage (src_path, CV_LOAD_IMAGE_COLOR)))
   {
     fprintf (stderr, "couldn't open image file: %s\n", argv[1]);
     return EXIT_FAILURE;
@@ -38,8 +40,10 @@ int main (int argc, char* argv[])
 
   cvNamedWindow ("avant", CV_WINDOW_AUTOSIZE);
   cvShowImage ("avant", img);
-  fil = cvCreateImage (cvGetSize (img), IPL_DEPTH_8U, 1);
-  f.appliqueFiltre(img, fil);
+
+  fil = cvCreateImage (cvGetSize (img), IPL_DEPTH_8U, 3);
+  f.appliqueFiltreCouleur(img, fil);
+
   cvNamedWindow (window_title, CV_WINDOW_AUTOSIZE);
   cvShowImage (window_title, fil);
   cvWaitKey(0);
