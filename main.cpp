@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include <assert.h>
 #include <opencv/highgui.h>
 
@@ -41,8 +42,8 @@ int main (int argc, char* argv[])
   cvNamedWindow ("avant", CV_WINDOW_AUTOSIZE);
   cvShowImage ("avant", img);
 
-  fil = cvCreateImage (cvGetSize (img), IPL_DEPTH_8U, 3);
-  f.appliqueFiltreCouleur(img, fil);
+  fil = cvCreateImage (cvGetSize (img), IPL_DEPTH_8U, 3);  
+  f.appliqueFiltreCouleur(*img, *fil);
 
   cvNamedWindow (window_title, CV_WINDOW_AUTOSIZE);
   cvShowImage (window_title, fil);

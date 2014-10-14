@@ -1,6 +1,6 @@
 #ifndef FILTRE_H
 #define FILTRE_H
-
+#include <iostream>
 #include <vector>
 #include <opencv/highgui.h>
 
@@ -32,8 +32,8 @@ public:
 
     filtre& operator=(filtre f);
 
-    void appliqueFiltre(IplImage* img, IplImage *res);
-    void appliqueFiltreCouleur(IplImage* img, IplImage *res);
+    void appliqueFiltre(IplImage& img, IplImage& res);
+    void appliqueFiltreCouleur(IplImage& img, IplImage& res);
 };
 
 #endif

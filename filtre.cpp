@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include "filtre.h"
+#include <iostream>
 
 filtre::filtre():nbLigne(3), nbColonne(3)
 {
@@ -95,79 +96,146 @@ filtre& filtre::operator=(filtre f)
 	return *this;
 }
 
-void filtre::appliqueFiltre(IplImage* img, IplImage *res)
+void filtre::appliqueFiltre(IplImage& img, IplImage &res)
 {
 	int x,y,i,j;
 	uchar *p;
 
 	uchar u;
 	int Sx,Sy;
+	double ampli;
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
 
-	assert (img->depth == IPL_DEPTH_8U && img->nChannels == 1);
-
-	for (y = 1; y < img->height-1; ++y)
+	for (y = 1; y < img.height-1; ++y)
 	{
-		for (x = 1; x < img->width-1; ++x)
+		for (x = 1; x < img.width-1; ++x)
 		{
-		Sx = 0;
-		Sy = 0;
-		for (i = 0; i < 3; ++i)
-		{
-			for (j = 0; j < 3; ++j)
+			Sx = 0;
+			Sy = 0;
+			for (i = 0; i < 3; ++i)
 			{
-				u = *cvPtr2D(img, y-1+j, x-1+i, NULL); 
-				Sx += u * Gx[j][i];				
-				Sy += u * Gy[j][i];
+				for (j = 0; j < 3; ++j)
+				{
+					u = *cvPtr2D(&img, y-1+j, x-1+i, NULL); 
+					Sx += u * Gx[j][i];				
+					Sy += u * Gy[j][i];
+				}
 			}
-		}
-		p = cvPtr2D (res, y, x, NULL);
-		*p = sqrt(Sy*Sy +Sx*Sx);
-		*p %= 255;
+			if( Sx != 0)
+			{
+				ampli = atan(Sy/Sx);
+				
+				p = cvPtr2D (&res, y, x, NULL);
+				if(ampli > 0)
+				{
+					*p = sqrt(Sy*Sy + Sx*Sx);
+					*p %= 255;
+				}
+				else if (ampli < 0)
+				{
+					*(p+1) = sqrt(Sy*Sy + Sx*Sx);
+					*(p+1) %= 255;
+				}
+				else
+				{
+					*(p+2) = sqrt(Sy*Sy + Sx*Sx);
+					*(p+2) %= 255;
+				}
+			}
+
 		}
 	}
 }
 
-void filtre::appliqueFiltreCouleur(IplImage* img, IplImage *res)
+void filtre::appliqueFiltreCouleur(IplImage& img, IplImage &res)
 {
 	int x,y,i,j;
 	uchar *p;
 
 	uchar *u;
+	int S;
 	int Bx,By;
 	int Rx,Ry;
 	int Vx,Vy;
+	double B,V,R;
+	double ampli;
 
-	assert (img->depth == IPL_DEPTH_8U && img->nChannels == 3);
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 3);
 
-	for (y = 1; y < img->height-1; ++y)
+	for (y = 1; y < img.height-1; ++y)
 	{
-		for (x = 1; x < img->width-1; ++x)
+		for (x = 1; x < img.width-1; ++x)
 		{
-		Bx = 0;By = 0;
-		Vx = 0;Vy = 0;
-		Rx = 0;Ry = 0;
+			Bx = 0;By = 0;
+			Vx = 0;Vy = 0;
+			Rx = 0;Ry = 0;
 
-		for (i = 0; i < 3; ++i)
-		{
-			for (j = 0; j < 3; ++j)
+			for (i = 0; i < 3; ++i)
 			{
-				u = cvPtr2D(img, y-1+j, x-1+i, NULL); 
-				Bx += *u * Gx[j][i];				
-				By += *u * Gy[j][i];
-				Vx += *(u+1) * Gx[j][i];				
-				Vy += *(u+1) * Gy[j][i];
-				Rx += *(u+2) * Gx[j][i];				
-				Ry += *(u+2) * Gy[j][i];
+				for (j = 0; j < 3; ++j)
+				{
+					u = cvPtr2D(&img, y-1+j, x-1+i, NULL); 
+					Bx += *u * Gx[j][i];				
+					By += *u * Gy[j][i];
+					Vx += *(u+1) * Gx[j][i];				
+					Vy += *(u+1) * Gy[j][i];
+					Rx += *(u+2) * Gx[j][i];				
+					Ry += *(u+2) * Gy[j][i];
+				}
 			}
-		}
-		p = cvPtr2D (res, y, x, NULL);
-		*p = sqrt(By*By + Bx*Bx);
-		*p %= 255;
+			B = sqrt(By*By + Bx*Bx);
+			V = sqrt(Vy*Vy + Vx*Vx);
+			R = sqrt(Ry*Ry + Rx*Rx);
+			
+			ampli =0;
+			p = cvPtr2D (&res, y, x, NULL);
 
-		*(p+1) = sqrt(Vy*Vy + Vx*Vx);
-		*(p+1) %= 255;
-		*(p+2) = sqrt(Ry*Ry + Rx*Rx);
-		*(p+2) %= 255;
+			if(V > B && V > R)
+			{
+				//std::cout << "V ";
+				S = V;
+				if(Vx != 0) 
+				{
+					ampli = atan(Vy/Vx);
+					//std::cout <<atan(Vy/Vx);
+				}
+			}				
+			else if (R > B)
+			{ 
+				//std::cout << "R ";
+				S = R;
+				if(Rx != 0) 
+				{
+					ampli = atan(Ry/Rx);
+					//std::cout <<atan(Ry/Rx);
+				}
+			}
+			else {
+				//std::cout << "B ";
+				S = B;
+				if(Bx != 0)
+				{
+					ampli = atan(By/Bx);
+					//std::cout <<atan(By/Bx);
+				}
+			}
+			//std::cout << " "<<ampli<<std::endl;
+			if(ampli > 0)
+			{
+				*p = S;
+				*p %= 255;
+			}
+			else if (ampli < 0)
+			{
+				*(p+1) = S;
+				*(p+1) %= 255;
+			}
+			else
+			{
+				*(p+2) = S;
+				*(p+2) %= 255;
+			}
+
 		}
 	}
 }
