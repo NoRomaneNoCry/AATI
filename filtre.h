@@ -34,6 +34,9 @@ public:
 
     void appliqueFiltre(IplImage& img, IplImage& res);
     void appliqueFiltreCouleur(IplImage& img, IplImage& res);
+
+    void seuilFixe(const IplImage& img, IplImage& res, const unsigned int seuil);
+    void seuilGlobal(const IplImage& img, IplImage& res);
 };
 
 #endif

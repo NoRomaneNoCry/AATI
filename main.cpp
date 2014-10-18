@@ -13,7 +13,7 @@
 
 int main (int argc, char* argv[])
 {
-  IplImage* img = NULL, *fil = NULL; 
+  IplImage* img = NULL, *fil = NULL, *seuil = NULL; 
   const char* src_path = NULL;
   const char* dst_path = NULL;
   const char* window_title = "filtre";
@@ -33,7 +33,7 @@ int main (int argc, char* argv[])
   if (argc > 2) 
     dst_path = argv[2];
 
-  if (!(img = cvLoadImage (src_path, CV_LOAD_IMAGE_COLOR)))
+  if (!(img = cvLoadImage (src_path, CV_LOAD_IMAGE_GRAYSCALE)))
   {
     fprintf (stderr, "couldn't open image file: %s\n", argv[1]);
     return EXIT_FAILURE;
@@ -42,12 +42,25 @@ int main (int argc, char* argv[])
   cvNamedWindow ("avant", CV_WINDOW_AUTOSIZE);
   cvShowImage ("avant", img);
 
+  //Create trackbar to change contrast
+  
   fil = cvCreateImage (cvGetSize (img), IPL_DEPTH_8U, 3);  
-  f.appliqueFiltreCouleur(*img, *fil);
+  f.appliqueFiltre(*img, *fil);
 
   cvNamedWindow (window_title, CV_WINDOW_AUTOSIZE);
+  //cvNamedWindow ("controle", CV_WINDOW_AUTOSIZE);
+ // cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
   cvShowImage (window_title, fil);
+  //int Seuillage = 50;
+  //cvCreateTrackbar("Seuillage", "controle", &Seuillage, 255);
+
+  seuil = cvCreateImage (cvGetSize (img), IPL_DEPTH_8U, 3);  
+
+ // f.seuilGlobal(*fil,*seuil);
+ // cvShowImage ("seuil", seuil);
   cvWaitKey(0);
+
+
 
   if (dst_path && !cvSaveImage (dst_path, fil, NULL))
   {

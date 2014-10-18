@@ -19,4 +19,4 @@ main.o: main.cpp
 	$(CC) $< $(CFLAGS) $(OPENFLAGS)
 
 clean: 
-	rm -rf *.o $(EXEC)
+	rm -rf *.o *~ $(EXEC)

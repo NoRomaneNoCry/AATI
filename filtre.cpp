@@ -4,6 +4,9 @@
 #include "filtre.h"
 #include <iostream>
 
+
+#define PI 3.14159265
+
 filtre::filtre():nbLigne(3), nbColonne(3)
 {
 	filtre(3,3);
@@ -100,11 +103,11 @@ void filtre::appliqueFiltre(IplImage& img, IplImage &res)
 {
 	int x,y,i,j;
 	uchar *p;
-
-	uchar u;
 	int Sx,Sy;
-	double ampli;
+	int grad;
+	double ampli = 0.0;
 	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
+	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 3);
 
 	for (y = 1; y < img.height-1; ++y)
 	{
@@ -116,126 +119,90 @@ void filtre::appliqueFiltre(IplImage& img, IplImage &res)
 			{
 				for (j = 0; j < 3; ++j)
 				{
-					u = *cvPtr2D(&img, y-1+j, x-1+i, NULL); 
-					Sx += u * Gx[j][i];				
-					Sy += u * Gy[j][i];
+					p = cvPtr2D(&img, y-1+j, x-1+i, NULL); 
+					Sx += *p * Gx[j][i];				
+					Sy += *p * Gy[j][i];
 				}
 			}
-			if( Sx != 0)
+			
+			if(Sx != 0)
 			{
-				ampli = atan(Sy/Sx);
+				ampli = atan((double)Sy/(double)Sx);
 				
+				//std::cout<<"ampli "<<ampli;
+				//std::cout<<" Sy "<<Sy<<" Sx " <<Sx <<std::endl;
 				p = cvPtr2D (&res, y, x, NULL);
-				if(ampli > 0)
+				grad = sqrt(Sx*Sx + Sy*Sy);
+				grad %= 255;
+
+				if(ampli >= 0 && ampli < PI/4)
 				{
-					*p = sqrt(Sy*Sy + Sx*Sx);
-					*p %= 255;
+					*p = grad;
 				}
-				else if (ampli < 0)
+				else if(ampli >= PI/4)
 				{
-					*(p+1) = sqrt(Sy*Sy + Sx*Sx);
-					*(p+1) %= 255;
+					*(p+1) = grad;
 				}
-				else
+				else if(ampli <= 0 && ampli > -PI/4)
 				{
-					*(p+2) = sqrt(Sy*Sy + Sx*Sx);
-					*(p+2) %= 255;
+					*(p+2) = grad;	
+				}
+				else 
+				{
+					*p = *(p+1) = *(p+2) = grad;
 				}
 			}
-
 		}
 	}
 }
 
-void filtre::appliqueFiltreCouleur(IplImage& img, IplImage &res)
+void filtre::seuilFixe(const IplImage& img, IplImage& res, const unsigned int seuil)
 {
-	int x,y,i,j;
-	uchar *p;
-
-	uchar *u;
-	int S;
-	int Bx,By;
-	int Rx,Ry;
-	int Vx,Vy;
-	double B,V,R;
-	double ampli;
-
+	int x,y;
+	uchar *image, *result;
 	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 3);
+	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 3);
 
-	for (y = 1; y < img.height-1; ++y)
+	for (y = 1; y < img.height; ++y)
 	{
-		for (x = 1; x < img.width-1; ++x)
+		for (x = 1; x < img.width; ++x)
 		{
-			Bx = 0;By = 0;
-			Vx = 0;Vy = 0;
-			Rx = 0;Ry = 0;
-
-			for (i = 0; i < 3; ++i)
-			{
-				for (j = 0; j < 3; ++j)
-				{
-					u = cvPtr2D(&img, y-1+j, x-1+i, NULL); 
-					Bx += *u * Gx[j][i];				
-					By += *u * Gy[j][i];
-					Vx += *(u+1) * Gx[j][i];				
-					Vy += *(u+1) * Gy[j][i];
-					Rx += *(u+2) * Gx[j][i];				
-					Ry += *(u+2) * Gy[j][i];
-				}
-			}
-			B = sqrt(By*By + Bx*Bx);
-			V = sqrt(Vy*Vy + Vx*Vx);
-			R = sqrt(Ry*Ry + Rx*Rx);
-			
-			ampli =0;
-			p = cvPtr2D (&res, y, x, NULL);
-
-			if(V > B && V > R)
-			{
-				//std::cout << "V ";
-				S = V;
-				if(Vx != 0) 
-				{
-					ampli = atan(Vy/Vx);
-					//std::cout <<atan(Vy/Vx);
-				}
-			}				
-			else if (R > B)
-			{ 
-				//std::cout << "R ";
-				S = R;
-				if(Rx != 0) 
-				{
-					ampli = atan(Ry/Rx);
-					//std::cout <<atan(Ry/Rx);
-				}
-			}
-			else {
-				//std::cout << "B ";
-				S = B;
-				if(Bx != 0)
-				{
-					ampli = atan(By/Bx);
-					//std::cout <<atan(By/Bx);
-				}
-			}
-			//std::cout << " "<<ampli<<std::endl;
-			if(ampli > 0)
-			{
-				*p = S;
-				*p %= 255;
-			}
-			else if (ampli < 0)
-			{
-				*(p+1) = S;
-				*(p+1) %= 255;
-			}
-			else
-			{
-				*(p+2) = S;
-				*(p+2) %= 255;
-			}
-
+			image = cvPtr2D (&img, y, x, NULL);
+			result = cvPtr2D (&res, y, x, NULL);
+			if(*image < seuil)
+				*result = 0;
+			else *result = 255;
+			if(*(image+1) < seuil)
+				*(result+1) = 0;
+			else *(result+1) = 255;
+			if(*(image+2) < seuil)
+				*(result+2) = 0;
+			else *(result+2) = 255;
 		}
 	}
+}
+
+void filtre::seuilGlobal(const IplImage& img, IplImage& res)
+{
+	int x,y;
+	unsigned int compteur = 0, somme = 0;
+	double moyenne;
+	uchar * u;
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 3);
+	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 3);
+
+	for (y = 1; y < img.height; ++y)
+	{
+		for (x = 1; x < img.width; ++x)
+		{
+			u = cvPtr2D (&img, y, x, NULL);
+			somme += *u;
+			somme += *(u+1);
+			somme += *(u+2);
+			compteur +=3;
+		}
+	}
+
+	moyenne = (double)somme / (double)compteur;
+	seuilFixe(img,res,(int)moyenne);
 }
