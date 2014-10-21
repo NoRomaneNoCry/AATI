@@ -30,13 +30,12 @@ public:
 	int& getGx(const unsigned int x, const unsigned int y);
 	int getGx(const unsigned int x, const unsigned int y) const;
 
-    filtre& operator=(filtre f);
-
     void appliqueFiltre(IplImage& img, IplImage& res);
-    void appliqueFiltreCouleur(IplImage& img, IplImage& res);
 
     void seuilFixe(const IplImage& img, IplImage& res, const unsigned int seuil);
     void seuilGlobal(const IplImage& img, IplImage& res);
+    void seuilLocal(const IplImage& img, IplImage& res);
+    void seuilHysteresis(const IplImage& img, IplImage& res, const int SeuilBas, const int SeuilHaut);
 };
 
 #endif

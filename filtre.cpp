@@ -4,9 +4,6 @@
 #include "filtre.h"
 #include <iostream>
 
-
-#define PI 3.14159265
-
 filtre::filtre():nbLigne(3), nbColonne(3)
 {
 	filtre(3,3);
@@ -85,33 +82,18 @@ int filtre::getGx(const unsigned int x, const unsigned int y) const
 	return Gx[x][y];
 }
 
-filtre& filtre::operator=(filtre f)
-{
-	filtre(f.getNbLigne(),f.getNbColonne());
-	for (int i = 0; i < getNbLigne(); ++i)
-	{
-		for (int j = 0; j < getNbColonne(); ++j)
-		{
-			Gx[i][j] = f.getGx(i,j);
-			Gy[i][j] = f.getGy(i,j);
-		}
-	}
-	return *this;
-}
-
-void filtre::appliqueFiltre(IplImage& img, IplImage &res)
+void filtre::appliqueFiltre(IplImage& img, IplImage& res)
 {
 	int x,y,i,j;
-	uchar *p;
-	int Sx,Sy;
-	int grad;
-	double ampli = 0.0;
+	int Sx, Sy;
+	int p;
+	CvScalar grad;
 	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
-	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 3);
+	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 1);
 
-	for (y = 1; y < img.height-1; ++y)
+	for (x = 1; x < img.height-1; ++x)
 	{
-		for (x = 1; x < img.width-1; ++x)
+		for (y = 1; y < img.width-1; ++y)
 		{
 			Sx = 0;
 			Sy = 0;
@@ -119,39 +101,14 @@ void filtre::appliqueFiltre(IplImage& img, IplImage &res)
 			{
 				for (j = 0; j < 3; ++j)
 				{
-					p = cvPtr2D(&img, y-1+j, x-1+i, NULL); 
-					Sx += *p * Gx[j][i];				
-					Sy += *p * Gy[j][i];
+					p = cvGet2D(&img, x-1+i, y-1+j).val[0]; 
+					Sx += p * Gx[i][j];				
+					Sy += p * Gy[i][j];
 				}
 			}
 			
-			if(Sx != 0)
-			{
-				ampli = atan((double)Sy/(double)Sx);
-				
-				//std::cout<<"ampli "<<ampli;
-				//std::cout<<" Sy "<<Sy<<" Sx " <<Sx <<std::endl;
-				p = cvPtr2D (&res, y, x, NULL);
-				grad = sqrt(Sx*Sx + Sy*Sy);
-				grad %= 255;
-
-				if(ampli >= 0 && ampli < PI/4)
-				{
-					*p = grad;
-				}
-				else if(ampli >= PI/4)
-				{
-					*(p+1) = grad;
-				}
-				else if(ampli <= 0 && ampli > -PI/4)
-				{
-					*(p+2) = grad;	
-				}
-				else 
-				{
-					*p = *(p+1) = *(p+2) = grad;
-				}
-			}
+			grad.val[0] = sqrt(Sx*Sx + Sy*Sy);
+			cvSet2D(&res,x,y,grad);
 		}
 	}
 }
@@ -159,25 +116,18 @@ void filtre::appliqueFiltre(IplImage& img, IplImage &res)
 void filtre::seuilFixe(const IplImage& img, IplImage& res, const unsigned int seuil)
 {
 	int x,y;
-	uchar *image, *result;
-	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 3);
-	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 3);
-
-	for (y = 1; y < img.height; ++y)
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
+	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 1);
+	CvScalar result;
+	for (x = 0; x < img.height; ++x)
 	{
-		for (x = 1; x < img.width; ++x)
+		for (y = 0; y < img.width; ++y)
 		{
-			image = cvPtr2D (&img, y, x, NULL);
-			result = cvPtr2D (&res, y, x, NULL);
-			if(*image < seuil)
-				*result = 0;
-			else *result = 255;
-			if(*(image+1) < seuil)
-				*(result+1) = 0;
-			else *(result+1) = 255;
-			if(*(image+2) < seuil)
-				*(result+2) = 0;
-			else *(result+2) = 255;
+			result = cvGet2D (&img, x, y);
+			if(result.val[0] < seuil) result.val[0] = 0;
+								 else result.val[0] = 255;
+
+			cvSet2D (&res, x, y,result);
 		}
 	}
 }
@@ -185,24 +135,111 @@ void filtre::seuilFixe(const IplImage& img, IplImage& res, const unsigned int se
 void filtre::seuilGlobal(const IplImage& img, IplImage& res)
 {
 	int x,y;
-	unsigned int compteur = 0, somme = 0;
+	double compteur = 0, somme = 0;
 	double moyenne;
-	uchar * u;
-	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 3);
-	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 3);
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
+	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 1);
 
-	for (y = 1; y < img.height; ++y)
+	for (x = 0; x < img.height; ++x)
 	{
-		for (x = 1; x < img.width; ++x)
+		for (y = 0; y < img.width; ++y)
 		{
-			u = cvPtr2D (&img, y, x, NULL);
-			somme += *u;
-			somme += *(u+1);
-			somme += *(u+2);
-			compteur +=3;
+			somme += cvGet2D(&img, x, y).val[0];
+			compteur ++;
 		}
 	}
 
-	moyenne = (double)somme / (double)compteur;
+	moyenne = somme / compteur;
+	std::cout << moyenne << std::endl;
 	seuilFixe(img,res,(int)moyenne);
+}
+
+void filtre::seuilLocal(const IplImage& img, IplImage& res)
+{
+	int x,y,i,j;
+	CvScalar result;
+	double compteur = 0, somme = 0;
+	double moyenne;
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
+	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 1);
+
+	for (x = 0; x < img.height; ++x)
+	{
+		for (y = 0; y < img.width; ++y)
+		{
+			somme = compteur = 0;
+			for (i = 0; i < 3; ++i)
+			{
+				for (j = 0; j < 3; ++j)
+				{
+					somme += cvGet2D(&img, x-1+j, y-1+i).val[0]; 
+					compteur ++;
+				}
+			}
+			moyenne = somme / compteur;
+			result = cvGet2D (&img, x, y);
+			if(result.val[0] < moyenne) result.val[0] = 0;
+								 else result.val[0] = 255;
+
+			cvSet2D (&res, x, y,result);
+		}
+	}
+}
+
+void filtre::seuilHysteresis(const IplImage& img, IplImage& res, const int SeuilBas, const int SeuilHaut)
+{
+	int x,y,i,j;
+	int image;
+	CvScalar result;
+
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
+	assert (res.depth == IPL_DEPTH_8U && res.nChannels == 1);
+	assert (SeuilBas <= SeuilHaut);
+	
+	for (x = 0; x < img.height; ++x)
+	{
+		for (y = 0; y < img.width; ++y)
+		{
+			image = cvGet2D(&img, x, y).val[0]; 
+			result = cvGet2D(&res, x, y); 
+			if(image < SeuilBas)
+			{
+				result.val[0] = 0;
+			}
+			else if(image > SeuilHaut)
+			{
+				result.val[0] = 255;
+			}
+			else 
+			{
+				result.val[0] = 2;
+			}
+			cvSet2D (&res, x, y,result);
+		}
+	}
+
+	for (x = 1; x < img.height - 1; ++x)
+	{
+		for (y = 1; y < img.width - 1; ++y)
+		{
+			result = cvGet2D(&res, x, y); 
+			if(result.val[0] == 2)
+			{
+				for (i = 0; i < 3; ++i)
+				{
+					for (j = 0; j < 3; ++j)
+					{
+						if(cvGet2D(&img, x-1+j, y-1+i).val[0] == 255)
+						{
+							result.val[0] = 255;
+							j = i = 3;
+						}
+						
+					}
+				}
+
+			}
+			cvSet2D (&res, x, y,result);
+		}
+	}
 }

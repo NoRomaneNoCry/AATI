@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-filtreKirsch::filtreKirsch()
+filtreKirsch::filtreKirsch(): filtre(3,3)
 {
 	Gx.resize(3);
 	Gy.resize(3);
@@ -24,19 +24,6 @@ filtreKirsch::filtreKirsch()
 			Gy[i][j] = Gx[j][i];
 		}
 	}
-
-	for (int i = 0; i < getNbLigne(); ++i)
-	{
-
-		printf("%d %d %d\n", Gy[i][0],Gy[i][1],Gy[i][2]);
-	}
-	for (int i = 0; i < getNbLigne(); ++i)
-	{
-
-		printf("%d %d %d\n", Gx[i][0],Gx[i][1],Gx[i][2]);
-	}
-
-
 }
 
 filtreKirsch::~filtreKirsch()
