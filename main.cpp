@@ -13,10 +13,9 @@
 
 int main (int argc, char* argv[])
 {
-  IplImage* img = NULL, *fil = NULL, *seuil = NULL;
+  IplImage* img = NULL, *fil = NULL, *seuil = NULL, affin;
   const char* src_path = NULL;
   const char* dst_path = NULL;
-  const char* window_title = "filtre";
   filtre f = filtrePrewitt();
 
   if (argc < 2)
@@ -35,22 +34,24 @@ int main (int argc, char* argv[])
     fprintf (stderr, "couldn't open image file: %s\n", argv[1]);
     return EXIT_FAILURE;
   }
-  cvNamedWindow ("avant", CV_WINDOW_AUTOSIZE);
-  cvShowImage ("avant", img);
+  cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
+  //cvShowImage ("avant", img);
   //Create trackbar to change contrast
-  fil = cvCreateImage (cvGetSize (img), IPL_DEPTH_8U, 1);
-  f.appliqueFiltre(*img, *fil);
-  //cvNamedWindow (window_title, CV_WINDOW_AUTOSIZE);
-  //cvNamedWindow ("controle", CV_WINDOW_AUTOSIZE);
-  // cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
-  cvShowImage (window_title, fil);
+  fil = cvCloneImage(img);
+  f.filtreMultidirectionnel(*img, *fil);
+  cvNamedWindow ("controle", CV_WINDOW_AUTOSIZE);
+  cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
+  cvNamedWindow ("affinage", CV_WINDOW_AUTOSIZE);
+  //cvShowImage (window_title, fil);
   //int Seuillage = 50;
   //cvCreateTrackbar("Seuillage", "controle", &Seuillage, 255);
   seuil = cvCreateImage (cvGetSize (fil), IPL_DEPTH_8U, 1);
-  f.seuilHysteresis(*fil,*seuil,20,150);
- //f.seuilFixe(*fil,*seuil,50);
+  f.seuilHysteresis(*fil,*seuil,44,60);
+  f.seuillageExtractionMaximasLocaux(*seuil,affin);
+  f.seuilFixe(*fil,*seuil,50);
 
-  cvShowImage ("seuil", seuil);
+  cvShowImage("seuil", seuil);
+  cvShowImage("affinage", &affin);
 
   cvWaitKey(0);
 
@@ -60,5 +61,6 @@ int main (int argc, char* argv[])
   }
   cvReleaseImage(&img);
   cvReleaseImage(&fil);
+  cvReleaseImage(&seuil);
   return EXIT_SUCCESS;
 }
