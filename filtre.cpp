@@ -289,3 +289,63 @@ IplImage filtre::filtreVertical()
 	}
 	return res;
 }
+
+IplImage filtre::filtreDiagonalG()
+{
+	int x,y,i,j;
+	int p;
+	int S;
+	CvScalar grad;
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
+	IplImage res = *cvCreateImage(cvGetSize(&img), IPL_DEPTH_8U, 1);
+
+	for (x = 1; x < img.height-1; ++x)
+	{
+		for (y = 1; y < img.width-1; ++y)
+		{
+			S = 0;
+			for (i = 0; i < 3; ++i)
+			{
+				for (j = 0; j < 3; ++j)
+				{
+					p = cvGet2D(&img, x-1+i, y-1+j).val[0]; 
+					S += p * Diag[i][j];	
+				}
+			}
+			
+			grad.val[0] = S;
+			cvSet2D(&res,x,y,grad);
+		}
+	}
+	return res;
+}
+
+IplImage filtre::filtreDiagonalD()
+{
+	int x,y,i,j;
+	int p;
+	int S;
+	CvScalar grad;
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
+	IplImage res = *cvCreateImage(cvGetSize(&img), IPL_DEPTH_8U, 1);
+
+	for (x = 1; x < img.height-1; ++x)
+	{
+		for (y = 1; y < img.width-1; ++y)
+		{
+			S = 0;
+			for (i = 0; i < 3; ++i)
+			{
+				for (j = 0; j < 3; ++j)
+				{
+					p = cvGet2D(&img, x-1+i, y-1+j).val[0]; 
+					S += p * Diag[2-i][2-j];	
+				}
+			}
+			
+			grad.val[0] = S;
+			cvSet2D(&res,x,y,grad);
+		}
+	}
+	return res;
+}

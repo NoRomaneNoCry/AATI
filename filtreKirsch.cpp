@@ -14,7 +14,7 @@ filtreKirsch::filtreKirsch(const IplImage& image): filtre(image)
 	{
 		for (int j = 0; j < getNbColonne(); ++j)
 		{
-			getGV(i,j) = getGV(j,i);
+			getGH(i,j) = getGV(j,i);
 		}
 	}
 
