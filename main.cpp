@@ -54,15 +54,15 @@ int main (int argc, char* argv[])
   //seuil = cvCreateImage (cvGetSize (&fil), IPL_DEPTH_8U, 1);
   seuillage s = seuillage(fil);
   seuil = s.seuilHysteresis(44,60);
-  affin = s.seuillageExtractionMaximasLocaux(f);
+  cvShowImage("seuil", &seuil);
+  affin = s.affinage(f);
   //f.seuilFixe(*fil,*seuil,50);
 
-  cvShowImage("seuil", &seuil);
   cvShowImage("affinage", &affin);
 
   cvWaitKey(0);
 
-  if (dst_path && !cvSaveImage (dst_path, &fil, NULL))
+  if (dst_path && !cvSaveImage (dst_path, &affin, NULL))
   {
     fprintf (stderr, "couldn't write image to file: %s\n", dst_path);
   }

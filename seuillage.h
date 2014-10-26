@@ -17,11 +17,12 @@ public:
 	seuillage(IplImage image);
 	~seuillage();
 
-	IplImage seuilFixe(const unsigned int seuil);
+	IplImage seuilFixe(unsigned int seuil);
     IplImage seuilGlobal();
     IplImage seuilLocal();
-    IplImage seuilHysteresis(const unsigned int SeuilBas, const unsigned int SeuilHaut);
+    IplImage seuilHysteresis(unsigned int SeuilBas, unsigned int SeuilHaut);
     IplImage seuillageExtractionMaximasLocaux(const filtre &f);
+    IplImage affinage(const filtre& f);
 };
 
 #endif
