@@ -9,7 +9,7 @@ class filtrePrewitt : public filtre
 {
 
 public:
-	filtrePrewitt();
+	filtrePrewitt(const IplImage& image);
 	~filtrePrewitt();
 };
 

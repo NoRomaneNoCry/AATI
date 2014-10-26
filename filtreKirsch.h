@@ -9,7 +9,7 @@ class filtreKirsch : public filtre
 {
 
 public:
-	filtreKirsch();
+	filtreKirsch(const IplImage& image);
 	~filtreKirsch();
 };
 

@@ -9,7 +9,7 @@ class filtreSobel : public filtre
 {
 
 public:
-	filtreSobel();
+	filtreSobel(const IplImage& image);
 	~filtreSobel();
 };
 

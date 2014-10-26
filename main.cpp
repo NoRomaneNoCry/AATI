@@ -9,14 +9,14 @@
 #include "filtrePrewitt.h"
 #include "filtreSobel.h"
 #include "filtreKirsch.h"
+#include "seuillage.h"
 
 
 int main (int argc, char* argv[])
 {
-  IplImage* img = NULL, *fil = NULL, *seuil = NULL, affin;
+  IplImage* img = NULL, fil, seuil, affin;
   const char* src_path = NULL;
   const char* dst_path = NULL;
-  filtre f = filtrePrewitt();
 
   if (argc < 2)
   {
@@ -34,33 +34,40 @@ int main (int argc, char* argv[])
     fprintf (stderr, "couldn't open image file: %s\n", argv[1]);
     return EXIT_FAILURE;
   }
-  cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
+  std::cout<<"constructeur"<<std::endl;
+
+  filtre f = filtrePrewitt(*img);
+
+
+  //cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
   //cvShowImage ("avant", img);
   //Create trackbar to change contrast
-  fil = cvCloneImage(img);
-  f.filtreMultidirectionnel(*img, *fil);
-  cvNamedWindow ("controle", CV_WINDOW_AUTOSIZE);
+  fil = f.filtreBidirectionnel();
+  std::cout<<"filtre"<<std::endl;
+  cvNamedWindow ("filtre", CV_WINDOW_AUTOSIZE);
+  //cvNamedWindow ("controle", CV_WINDOW_AUTOSIZE);
   cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
   cvNamedWindow ("affinage", CV_WINDOW_AUTOSIZE);
-  //cvShowImage (window_title, fil);
+  cvShowImage ("filtre", &fil);
   //int Seuillage = 50;
   //cvCreateTrackbar("Seuillage", "controle", &Seuillage, 255);
-  seuil = cvCreateImage (cvGetSize (fil), IPL_DEPTH_8U, 1);
-  f.seuilHysteresis(*fil,*seuil,44,60);
-  f.seuillageExtractionMaximasLocaux(*seuil,affin);
-  f.seuilFixe(*fil,*seuil,50);
+  //seuil = cvCreateImage (cvGetSize (&fil), IPL_DEPTH_8U, 1);
+  seuillage s = seuillage(fil);
+  seuil = s.seuilHysteresis(44,60);
+  affin = s.seuillageExtractionMaximasLocaux(f);
+  //f.seuilFixe(*fil,*seuil,50);
 
-  cvShowImage("seuil", seuil);
+  cvShowImage("seuil", &seuil);
   cvShowImage("affinage", &affin);
 
   cvWaitKey(0);
 
-  if (dst_path && !cvSaveImage (dst_path, fil, NULL))
+  if (dst_path && !cvSaveImage (dst_path, &fil, NULL))
   {
     fprintf (stderr, "couldn't write image to file: %s\n", dst_path);
   }
   cvReleaseImage(&img);
-  cvReleaseImage(&fil);
-  cvReleaseImage(&seuil);
+  //cvReleaseImage(&fil);
+ // cvReleaseImage(&seuil);
   return EXIT_SUCCESS;
 }

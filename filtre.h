@@ -6,22 +6,31 @@
 
 class filtre
 {
-protected:
+private:
+	//filtres
 	std::vector<std::vector<int> > GV;
 	std::vector<std::vector<int> > GH;
 	std::vector<std::vector<int> > Diag;
+
+	//utile pour l'affinage des points
 	std::vector<std::vector<int> > filtreH;
 	std::vector<std::vector<int> > filtreV;
+
+	//image modele
+	IplImage img;
 
 	unsigned int nbLigne;
 	unsigned int nbColonne;
 
 public:
+	//constructeur / destructeur
 	filtre();
 	filtre(const unsigned int ligne,const unsigned int colonne);
 	filtre(const filtre &f);
+	filtre(const IplImage& image);
 	~filtre();
 
+	//getter et setter
 	unsigned int& getNbLigne();
 	unsigned int& getNbColonne();
 
@@ -37,17 +46,17 @@ public:
 	int& getDiag(const unsigned int x, const unsigned int y);
 	int getDiag(const unsigned int x, const unsigned int y) const;
 
-    void filtreHorizontal(IplImage& img, IplImage& res);
-    void filtreVertical(IplImage& img, IplImage& res);
-    void filtreBidirectionnel(IplImage& img, IplImage& res);
-    void filtreMultidirectionnel(IplImage& img, IplImage& res);
+	int& getFiltreH(const unsigned int x, const unsigned int y);
+	int getFiltreH(const unsigned int x, const unsigned int y) const;
 
+	int& getFiltreV(const unsigned int x, const unsigned int y);
+	int getFiltreV(const unsigned int x, const unsigned int y) const;
 
-    void seuilFixe(const IplImage& img, IplImage& res, const unsigned int seuil);
-    void seuilGlobal(const IplImage& img, IplImage& res);
-    void seuilLocal(const IplImage& img, IplImage& res);
-    void seuilHysteresis(const IplImage& img, IplImage& res, const int SeuilBas, const int SeuilHaut);
-    void seuillageExtractionMaximasLocaux(const IplImage& img, IplImage& res);
+	//filtres 
+    IplImage filtreHorizontal();
+    IplImage filtreVertical();
+    IplImage filtreBidirectionnel();
+    IplImage filtreMultidirectionnel();
 };
 
 #endif
