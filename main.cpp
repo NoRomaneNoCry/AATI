@@ -42,27 +42,27 @@ int main (int argc, char* argv[])
   //cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
   //cvShowImage ("avant", img);
   //Create trackbar to change contrast
-  fil = f.filtreDiagonalG();
+  fil = f.filtreMultidirectionnel();
   std::cout<<"filtre"<<std::endl;
   cvNamedWindow ("filtre", CV_WINDOW_AUTOSIZE);
   //cvNamedWindow ("controle", CV_WINDOW_AUTOSIZE);
- // cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
+  cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
  // cvNamedWindow ("affinage", CV_WINDOW_AUTOSIZE);
   cvShowImage ("filtre", &fil);
   //int Seuillage = 50;
   //cvCreateTrackbar("Seuillage", "controle", &Seuillage, 255);
   //seuil = cvCreateImage (cvGetSize (&fil), IPL_DEPTH_8U, 1);
- // seuillage s = seuillage(fil);
+  seuillage s = seuillage(fil);
   //seuil = s.seuilHysteresis(44,60);
-  //cvShowImage("seuil", &seuil);
  // affin = s.affinage(f);
-  //f.seuilFixe(*fil,*seuil,50);
-
-  //cvShowImage("affinage", &affin);
+  seuil = s.seuilHysteresis(44,60);
+  cvShowImage("seuil", &seuil);
+  //affin = s.affinage(f);
+ // cvShowImage("affinage", &affin);
 
   cvWaitKey(0);
 
-  if (dst_path && !cvSaveImage (dst_path, &fil, NULL))
+  if (dst_path && !cvSaveImage (dst_path, &seuil, NULL))
   {
     fprintf (stderr, "couldn't write image to file: %s\n", dst_path);
   }

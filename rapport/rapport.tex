@@ -39,9 +39,9 @@ commentstyle=\it\color{green}, %
 
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
+%11006689
 
-
- \author{\fontsize{14}{14}{Aurélien CHEMIER, Romane LHOMME}}
+ \author{\fontsize{14}{14}{Aurélien CHEMIER 10908892 et Romane LHOMME 11006689}}
  \title{\fontsize{16}{16}{{\bf Analyse, aquisition et traitement d’image \\ TP1}}}
  \date{\fontsize{11}{11}{\today}}
 
@@ -338,11 +338,126 @@ commentstyle=\it\color{green}, %
 	Néanmoins, ce bruit est toujours présent, c'est pourquoi il faut passer à l'étape du seuillage.
  
 \section{Seuillage}
+	
+	Le seuillage consiste à "filtrer" les pixels de l'image filtrer en fonction d'un seuil. 
+	Si la valeur du pixel courant est inférieur au seuil, elle est passée à 0, sinon elle prend la valeur maximale (ici 255).
 
-	\subsection{Seuillage fixe}
+	Celui ci peut être déterminer de plusieurs manière.
+
+	\subsection{Seuillage fixe}\label{fixe}
+
+	Le seuil S est fixé et est commun à toute l'image. néanmoins il faut choisir une bonne valeur pour avoir un résultat correct.
+
+	Les exemples ci-dessous ont été calculé sur un filtre de Prewitt multidirectionnel.
+	\begin{figure}[H]
+		\begin{minipage}[c]{.30\linewidth}
+			\centering
+			\includegraphics[scale=0.15]{Image/seuilFixe20.png}
+			\caption{S = 20}
+			\label{fig:seuilFixe20}
+		\end{minipage} \hfill
+		\begin{minipage}[c]{.30\linewidth}
+			\centering
+			\includegraphics[scale=0.15]{Image/seuilFixe50.png}
+			\caption{S = 50}
+			\label{fig:seuilFixe50}
+		\end{minipage} \hfill
+		\begin{minipage}[c]{.30\linewidth}
+			\centering
+			\includegraphics[scale=0.15]{Image/seuilFixe70.png}
+			\caption{S = 70}
+			\label{fig:seuilFixe70}
+		\end{minipage}
+
+		\begin{minipage}[c]{.30\linewidth}
+			\centering
+			\includegraphics[scale=0.15]{Image/seuilFixe100.png}
+			\caption{S = 100}
+			\label{fig:SeuilFixe100}
+		\end{minipage} \hfill
+		\begin{minipage}[c]{.30\linewidth}
+			\centering
+			\includegraphics[scale=0.15]{Image/seuilFixe150.png}
+			\caption{S = 150}
+			\label{fig:seuilFixe150}
+		\end{minipage} \hfill
+		\begin{minipage}[c]{.30\linewidth}
+			\centering
+			\includegraphics[scale=0.15]{Image/seuilFixe200.png}
+			\caption{S = 200}
+			\label{fig:seuilFixe200}
+		\end{minipage}
+	\end{figure}
+
+	Pour des seuils très bas, on  remarque bien que le bruit est important (figure \ref{fig:seuilFixe20}).
+	Au contraire, dans le cas de seuil élevé, certain contours sont effacés et l'image perd en précision (figure \ref{fig:seuilFixe150} et \ref{fig:seuilFixe200}).
+
+	La compléxité de cette méthode est de \[w \times h\]
+
 	\subsection{Seuillage global}
+
+	Nous venons de voir que le choix du seuil est crucial dans le seuillage de l'image. 
+	Il est rapidement contraignant de chercher "à la main" le seuil optimal pour une image.
+	Le seuillage globale permet de determiner un seuil pour une image : il calcule la valeur moyenne des gradients de l'image et 
+	prend cette moyenne comme seuil.
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[scale=0.25]{Image/seuilGlobal.png}
+		\caption{Seuillage Global de Prewitt multidirectionnel}
+		\label{fig:seuilGlobal}
+	\end{figure} 
+
+	La complexité est plus grande car on effectue deux parcours de l’image: \[2 \times w \times x\]
+
+	L’image contenant beaucoup de nuances de gris comme contours, le résultat contient beaucoup de "bruit" dans les contours.
+
 	\subsection{Seuillage local}
+
+	Le seuillage local calcule la moyenne des pixels voisins au pixel courant. 
+	Une fois cette moyenne calculé, on la compare avec le pixel courant.
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[scale=0.25]{Image/seuilLocal.png}
+		\caption{Seuillage Local de Prewitt multidirectionnel}
+		\label{fig:seuilLocal}
+	\end{figure} 
+
+	Le résultat est  bruité mais celui-ci a une précision supérieur à celle du seuil global. 
+	En effet, on retrouve toute les courbes intacts dans l'image seuillée.
+
+	La complexité est plus élevée a cause du calcul systématique de la moyenne locale: \[l^2 \times w \times x\]
+	avec \textit{l} la taille de la zone où est calculé la moyenne.
+
 	\subsection{Seuillage par Hysteresis}
+
+	Dans le cas d'un seuillage par hysteresis, on utilise deux seuil, un seuil Bas \textit{Sb} et un seuil haut \textit{Sh}.
+
+	\begin{verbatim}
+		Si Pixel_courant < Sb alors Pixel_courant = 0
+		Sinon Si Pixel_courant > Sh alors Pixel_courant = 255
+		Sinon Si un voisin de Pixel_courant = 225 alors Pixel_courant = 255
+		      Sinon Pixel_courant = 255
+	\end{verbatim}
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[scale=0.25]{Image/seuilHysteresis.png}
+		\caption{Seuillage Hysteresis de Prewitt multidirectionnel	(\textit{Sb} = 44, \textit{Sh} = 60)}
+		\label{fig:seuilHysteresis}
+	\end{figure} 
+
+	Cet algorithme permet de réduire le bruit et les trous dans les contours et donne d'excellents résultats.
+
+	La difficulté de cette méthode est dans le choix des valeurs de \textit{Sb} et \textit{Sh}.
+	Les mêmes problèmes que le seuillage fixe peuvent se produire. (voir \ref{fixe}).
+
+	La complexité de cette algorithme est de \[n \times w \times h\]
+	avec \textit{n} le nombre de passage sur l'image pour controler les pixel entre deux valeurs.
+
+	Une fois, les contours bien définis par le seuillage, il reste encore une étape : l'affinage.
+
 
 \section{Affinage}
 

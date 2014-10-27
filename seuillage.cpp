@@ -58,9 +58,9 @@ IplImage seuillage::seuilLocal()
 	double moyenne;
 	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
 
-	for (x = 0; x < img.height; ++x)
+	for (x = 1; x < img.height-1; ++x)
 	{
-		for (y = 0; y < img.width; ++y)
+		for (y = 1; y < img.width-1; ++y)
 		{
 			somme = compteur = 0;
 			for (i = 0; i < 3; ++i)
