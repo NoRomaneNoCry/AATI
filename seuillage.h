@@ -21,7 +21,6 @@ public:
     IplImage seuilGlobal();
     IplImage seuilLocal();
     IplImage seuilHysteresis(unsigned int SeuilBas, unsigned int SeuilHaut);
-    IplImage seuillageExtractionMaximasLocaux(const filtre &f);
     IplImage affinage(const filtre& f);
 };
 

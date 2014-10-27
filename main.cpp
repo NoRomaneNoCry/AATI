@@ -57,12 +57,12 @@ int main (int argc, char* argv[])
  // affin = s.affinage(f);
   seuil = s.seuilHysteresis(44,60);
   cvShowImage("seuil", &seuil);
-  //affin = s.affinage(f);
- // cvShowImage("affinage", &affin);
+  affin = s.affinage(f);
+  cvShowImage("affinage", &affin);
 
   cvWaitKey(0);
 
-  if (dst_path && !cvSaveImage (dst_path, &seuil, NULL))
+  if (dst_path && !cvSaveImage (dst_path, &affin, NULL))
   {
     fprintf (stderr, "couldn't write image to file: %s\n", dst_path);
   }

@@ -51,6 +51,8 @@ commentstyle=\it\color{green}, %
 \maketitle
 
 \newpage
+\tableofcontents
+\newpage
 
 \section{Introduction}
 
@@ -88,23 +90,68 @@ commentstyle=\it\color{green}, %
 	La méthode demandée consiste à appliquer des opérateurs (ou masques) de convolution (tableau MxM).
 
 	Pour chaque Pixel de l'image, on fait la somme du produit des pixels voisins avec la case du filtre correspndante, comme le montre le code suivant.
-	\begin{lstlisting}[caption={Utilisation d'un masque de convolution 3x3},language=C++,label=utilisationMasque]
-	for (i = 0; i < 3; ++i)
-	{
-		for (j = 0; j < 3; ++j)
-		{ 
-			gradient += p[i][j] * Filtre[i][j];	
-		}
-	}
-	\end{lstlisting}
 
+	\begin{lstlisting}[caption={filtre.h},language=C++,label=filtreh]
+		for (i = 0; i < 3; ++i)
+		{
+			for (j = 0; j < 3; ++j)
+			{ 
+				gradient += p[i][j] * Filtre[i][j];	
+			}
+		}
+	\end{lstlisting}
 	Le pixel sur lequel s'applique le filtre se situe au milieu de celui ci, ici en position 1,1.
 
 	Le gradient est ensuite normalisé entre 0 et 255 et devient la valeur du pixel courant dans l'image filtrée.
 
 	Tous les filtres appliqués dans ce TPs sont de dimension 3x3.
-[H]
-	Différents filtres peuvent être utilisés :  
+
+	\subsection{Implémentation}
+
+		Pour coder ces filtres, nous avons une classe mère filtre.h. 
+		\subsubsection{filtre.h}
+
+		\begin{lstlisting}[caption={Classe filtre},language=C++,label=filtre]
+		class filtre
+		{
+		private:
+			std::vector<std::vector<int> > GV; //filtre vertical
+			std::vector<std::vector<int> > GH; //filtre horizontal
+			std::vector<std::vector<int> > Diag; //filtre diagonal
+
+			//utile pour l'affinage des points
+			//gradients horizontaux
+			std::vector<std::vector<int> > filtreH; 
+			//gradients verticaux
+			std::vector<std::vector<int> > filtreV; 
+
+			//image modele
+			IplImage img;
+
+			//les dimensions de l'image
+			unsigned int nbLigne;
+			unsigned int nbColonne;
+		};
+		\end{lstlisting}
+
+		La classe contient également des getters et des setters pour acceder à ses différents éléments.
+
+		Les différents algorithmes de tris sont également dans la classe filtre.
+
+		\subsubsection{Classes filles}
+
+			Les classes filles héritent de filtre.h et permettent d'initialiser les masques horitaux, verticaux et diagonaux avec les valeurs correspondantes au filtre utilisé.
+
+		\subsubsection{Fonction de tri}
+
+			Les différentes fonctions de tri fonctionnent sur le même schéma: 
+			\begin{itemize}
+			\item La fonction s'applique sur l'image stocké dans le filtre.
+			\item Elle retourne une image de même dimension que l'image modèle.
+			\end{itemize}
+
+
+	\subsection{Filtre de base} 
 
 	\begin{itemize}
 		\item Prewitt
@@ -191,9 +238,6 @@ commentstyle=\it\color{green}, %
 			\caption{Prewitt Vertical}
 			\label{fig:PrewittVertical}
 		\end{minipage}
-	\end{figure}
-
-	\begin{figure}[H]
 		\begin{minipage}[c]{.46\linewidth}
 			\centering
 			\includegraphics[scale=0.25]{Image/filtreSobelHorizontal.png}
@@ -206,9 +250,6 @@ commentstyle=\it\color{green}, %
 			\caption{Sobel Vertical}
 			\label{fig:SobelVertical}
 		\end{minipage}
-	\end{figure}
-
-	\begin{figure}[H]
 		\begin{minipage}[c]{.46\linewidth}
 			\centering
 			\includegraphics[scale=0.25]{Image/filtreKirshHorizontal.png}
@@ -229,6 +270,7 @@ commentstyle=\it\color{green}, %
 		\item \textit{h} la hauteur de l’image. 
 	\end{itemize}
 
+
 	\subsection{Filtrage bidirectionnel}
 
 	Le filtrage bidirectionnel consiste à appliquer deux masque de convolutions sur la même image.
@@ -240,7 +282,7 @@ commentstyle=\it\color{green}, %
 		\item \textit{GV} le gradient du filtre vertical,
 		\item \textit{GH} le gradient du filtre horizontal.
 	\end{itemize}
-
+            
 	\begin{figure}[H]
 		\begin{minipage}[c]{.46\linewidth}
 			\centering
@@ -344,6 +386,12 @@ commentstyle=\it\color{green}, %
 
 	Celui ci peut être déterminer de plusieurs manière.
 
+	\subsection{Implémentation}
+
+	Pour le seuillage, il n' y a qu'une seule classe seuillage qui contient l'image filtrée et l'image seuillé avec que celle ci soit affinée.
+
+	Les différentes fonctions de seuillage retournent une image et ne prennent aucun arguments (sauf seuilFixe() et SeuilHysteresis() qui prennent les valeurs des seuils comme expliqué ci dessous. (voir \ref{fixe} et \ref{hysteresis}) ).
+
 	\subsection{Seuillage fixe}\label{fixe}
 
 	Le seuil S est fixé et est commun à toute l'image. néanmoins il faut choisir une bonne valeur pour avoir un résultat correct.
@@ -430,7 +478,7 @@ commentstyle=\it\color{green}, %
 	La complexité est plus élevée a cause du calcul systématique de la moyenne locale: \[l^2 \times w \times x\]
 	avec \textit{l} la taille de la zone où est calculé la moyenne.
 
-	\subsection{Seuillage par Hysteresis}
+	\subsection{Seuillage par Hysteresis}\label{hysteresis}
 
 	Dans le cas d'un seuillage par hysteresis, on utilise deux seuil, un seuil Bas \textit{Sb} et un seuil haut \textit{Sh}.
 
@@ -448,6 +496,8 @@ commentstyle=\it\color{green}, %
 		\label{fig:seuilHysteresis}
 	\end{figure} 
 
+
+
 	Cet algorithme permet de réduire le bruit et les trous dans les contours et donne d'excellents résultats.
 
 	La difficulté de cette méthode est dans le choix des valeurs de \textit{Sb} et \textit{Sh}.
@@ -460,6 +510,54 @@ commentstyle=\it\color{green}, %
 
 
 \section{Affinage}
+
+	La détection de contours a pour conséquences de générer, pour chaque contours de l'image, des points doubles : l'un correspond à la frontière d'une zone, et l'autre à la frontière de la zone voisine. 
+	L'affinage des contours consiste obtenir de un pixel d'épaisseur. 
+	Pour y parvenir, la méthode d'extraction des maximas locaux dans la direction du gradient a été utilisée.
+
+	Le pixel (\textit{m},\textit{n}) est un contour horizontal si : \\
+	$$
+		|G_{v}| > |G_{h}| 
+	$$	
+	$$
+		G(m,n) > S 
+	$$	
+	$$
+		G(m,n) \le G(m - 1, n)\ et\ G(m, n) > G(m + 1, n) 
+    $$
+
+    avec : 
+    \begin{itemize}
+	    \item $G_{v}$ le gradient vertical,
+	    \item $G_{h}$ le gradient horizontal,
+	    \item $G$ le module du gradient,
+	    \item $S$ le seuil.
+
+    \end{itemize}
+
+    Le pixel (\textit{m},\textit{n}) est un contour vertical si : \\
+	$$
+		|G_{h}| > |G_{v}| 
+	$$	
+	$$
+		G(m,n) > S 
+	$$	
+	$$
+		G(m,n) \ge G(m, n - 1)\ et\ G(m, n) > G(m , n + 1) 
+    $$
+
+    
+
+    Si un point n'est pas un maximum local, il peut être supprimé. 
+    C’est grâce à cette méthode que nous éliminons entre autre les points doubles générés par l’étape de détection. 
+    La complexité de l’algorithme d’affinage revient toujours à l’ordre d’un parcours de l’image.
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[scale=0.25]{Image/affinage.png}
+		\caption{affinage du seuillage Hysteresis (figure \ref{fig:seuilHysteresis})}
+		\label{fig:affinage}
+	\end{figure} 
 
 \section{Conclusion}
 

@@ -147,47 +147,6 @@ IplImage seuillage::seuilHysteresis(int unsigned SeuilBas, int unsigned SeuilHau
 	return resSeuillage;
 }
 
-IplImage seuillage::seuillageExtractionMaximasLocaux(const filtre& f)
-{
-	double GM1, GM2;
-	int G;
-	double gH,gV;
-	CvScalar s;
-	//IplImage res = *cvCloneImage(&resSeuillage);
-
-	for (int i = 1; i < img.height-1; i++)
-	{
-		for (int j = 1; j < img.width-1; j++)
-		{
-			G = cvGet2D(&img,i,j).val[0]; 
-		
-			gH = f.getFiltreH(i,j);
-			gV = f.getFiltreV(i,j);
-			if(gV >= gH)
-			{
-				if(gV == 0) gV = 1;
-				GM1 = (gH / gV) * cvGet2D(&img,i-1,j).val[0] + ((gV - gH) / gV) * cvGet2D(&img,i-1,j+1).val[0];
-				GM2 = (gH / gV) * cvGet2D(&img,i+1,j-1).val[0] + ((gV - gH) / gV) * cvGet2D(&img,i+1,j).val[0];
-			}
-			else 
-			{
-				if(gH == 0) gH = 1;
-				GM1 = (gV / gH) * cvGet2D(&img,i,j+1).val[0] + ((gH - gV) / gH) * cvGet2D(&img,i-1,j+1).val[0];
-				GM2 = (gV / gH) * cvGet2D(&img,i,j-1).val[0] + ((gH - gV) / gH) * cvGet2D(&img,i+1,j-1).val[0];
-			}
-
-			if(!(G > GM1 && G > GM2))
-			{
-				s.val[0] = 0;
-				cvSet2D(&resSeuillage,i,j, s);
-			}		
-			//else s.val[0] = 0;
-					
-		}
-	}
-	return resSeuillage;
-}
-
 IplImage seuillage::affinage(const filtre& f)
 {
 	double GM1, GM2;
