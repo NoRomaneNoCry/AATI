@@ -58,7 +58,9 @@ public:
     IplImage filtreDiagonalD();
     IplImage filtreDiagonalG();
     IplImage filtreBidirectionnel();
+    IplImage filtreBidirectionnelCouleur();
     IplImage filtreMultidirectionnel();
+    IplImage filtreMultidirectionnelCouleur();
 };
 
 #endif

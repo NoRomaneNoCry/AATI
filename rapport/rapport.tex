@@ -252,15 +252,15 @@ commentstyle=\it\color{green}, %
 		\end{minipage}
 		\begin{minipage}[c]{.46\linewidth}
 			\centering
-			\includegraphics[scale=0.25]{Image/filtreKirshHorizontal.png}
-			\caption{Kirsh Horizontal}
-			\label{fig:KirshHorizontal}
+			\includegraphics[scale=0.25]{Image/filtreKirschHorizontal.png}
+			\caption{Kirsch Horizontal}
+			\label{fig:KirschHorizontal}
 		\end{minipage} \hfill
 		\begin{minipage}[c]{.46\linewidth}
 		\centering
-			\includegraphics[scale=0.25]{Image/filtreKirshVertical.png}
-			\caption{Kirsh Vertical}
-			\label{fig:KirshVertical}
+			\includegraphics[scale=0.25]{Image/filtreKirschVertical.png}
+			\caption{Kirsch Vertical}
+			\label{fig:KirschVertical}
 		\end{minipage}
 	\end{figure}
 
@@ -275,40 +275,78 @@ commentstyle=\it\color{green}, %
 
 	Le filtrage bidirectionnel consiste à appliquer deux masque de convolutions sur la même image.
 	La valeur du gradient devient: 
-	\[G = \sqrt{GV^2 + GH^2}\]
+	\[G = \sqrt{G_{v}^2 + G_{h}^2}\]
 	Avec 
 	\begin{itemize}
-		\item \textit{G} le gradient du filtre bidirectionnel,
-		\item \textit{GV} le gradient du filtre vertical,
-		\item \textit{GH} le gradient du filtre horizontal.
+		\item $G$ le gradient du filtre bidirectionnel,
+		\item $G_{v}$ le gradient du filtre vertical,
+		\item $G_{h}$ le gradient du filtre horizontal.
 	\end{itemize}
             
 	\begin{figure}[H]
-		\begin{minipage}[c]{.46\linewidth}
+		\begin{minipage}[c]{.3\linewidth}
 			\centering
 			\includegraphics[scale=0.25]{Image/filtrePrewittBidirectionnel.png}
 			\caption{Prewitt Bidirectionnel}
 			\label{fig:PrewittBidirectionnel}
 		\end{minipage} \hfill
-		\begin{minipage}[c]{.46\linewidth}
+		\begin{minipage}[c]{.3\linewidth}
 		\centering
 			\includegraphics[scale=0.25]{Image/filtreSobelBidirectionnel.png}
 			\caption{Sobel Bidirectionnel}
 			\label{fig:SobelBidirectionnel}
-		\end{minipage}
-	\end{figure}
-
-	\begin{figure}[H]
+		\end{minipage}\hfill
+		\begin{minipage}[c]{.3\linewidth}
 		\centering
-		\includegraphics[scale=0.25]{Image/filtreKirshBidirectionnel.png}
-		\caption{Kirsh Bidirectionnel}
-		\label{fig:KirshBidirectionnel}
+		\includegraphics[scale=0.25]{Image/filtreKirschBidirectionnel.png}
+		\caption{Kirsch Bidirectionnel}
+		\label{fig:KirschBidirectionnel}
+		\end{minipage}
 	\end{figure}
 
 	L’avantage de cette méthode est que seul 2 filtres sont nécessaires pour calculer le gradient en 1 point. 
 	Cependant elle peut être plus sensible au bruit que la méthode multidirectionelle.
 
-	Comme les deux filtres sont calculé sur le même de l'image, la complexité est également de \[w \times h\].
+	Après le calcul des gradients horizontaux et verticaux, on peut calculer l'orientation du gradient.
+	Pour celà, on utilise la formule :
+	$$
+		\theta = \arctan(\frac{G_{h}}{G_{v}})
+	$$
+
+	Pour calculer cette orientation, nous avons utiliser la fonction atan2(x,y)	qui en C++ calcule $\arctan(\frac{x}{y})$. 
+	Le resultat de cette fonction est compris entre $-\pi$ et $\pi$.
+
+	Une fois cette orientation calculée, mous pouvons affiché les différents angles récupés dans différentes couleurs :
+	\begin{itemize}
+	\item Entre 0 et $\pi/2$, rouge.
+	\item Entre $\pi/2$ et $\pi$, vert.
+	\item Entre 0 et $-\pi/2$, bleu.
+	\item Entre $-\pi/2$ et $-\pi$, blanc.
+	\end{itemize}
+            
+	\begin{figure}[H]
+		\begin{minipage}[c]{.3\linewidth}
+			\centering
+			\includegraphics[scale=0.25]{Image/filtrePrewittBidirectionnelCouleur.png}
+			\caption{Prewitt Bidirectionnel Couleur}
+			\label{fig:PrewittBidirectionnelCouleur }
+		\end{minipage} \hfill
+		\begin{minipage}[c]{.3\linewidth}
+		\centering
+			\includegraphics[scale=0.25]{Image/filtreSobelBidirectionnelCouleur.png}
+			\caption{Sobel Bidirectionnel Couleur}
+			\label{fig:SobelBidirectionnelCouleur}
+		\end{minipage}\hfill
+		\begin{minipage}[c]{.3\linewidth}
+		\centering
+		\includegraphics[scale=0.25]{Image/filtreKirschBidirectionnelCouleur.png}
+		\caption{Kirsch Bidirectionnel Couleur}
+		\label{fig:KirschBidirectionnelCouleur}
+		\end{minipage}
+	\end{figure}
+
+
+	Comme les deux filtres sont calculés sur la même de l'image, la complexité est également de \[w \times h\].
 
 	\subsection{Filtrage multidirectionnel}
 
@@ -369,9 +407,41 @@ commentstyle=\it\color{green}, %
 
 	\begin{figure}[H]
 		\centering
-		\includegraphics[scale=0.25]{Image/filtreKirshMultidirectionnel.png}
-		\caption{Kirsh Multidirectionnel}
-		\label{fig:KirshMultidirectionnel}
+		\includegraphics[scale=0.25]{Image/filtreKirschMultidirectionnel.png}
+		\caption{Kirsch Multidirectionnel}
+		\label{fig:KirschMultidirectionnel}
+	\end{figure}
+
+	Pour calculer l'orientation du filtre, on récupère la maximum des gradients calculés pour le points.
+
+	Le choix de la couleur en fonction du maximum choisi.
+
+	\begin{itemize}
+	\item masque Vertical, rouge.
+	\item masque Horizontal, vert.
+	\item masque Diagonal droite, bleu.
+	\item masque Diagonal gauche, blanc.
+	\end{itemize}
+            
+	\begin{figure}[H]
+		\begin{minipage}[c]{.3\linewidth}
+			\centering
+			\includegraphics[scale=0.25]{Image/filtreMultidirectionnelPrewittCouleur.png}
+			\caption{Prewitt Multidirectionnel Couleur}
+			\label{fig:PrewittMultidirectionnelCouleur }
+		\end{minipage} \hfill
+		\begin{minipage}[c]{.3\linewidth}
+		\centering
+			\includegraphics[scale=0.25]{Image/filtreMultidirectionnelSobelCouleur.png}
+			\caption{Sobel Multidirectionnel Couleur}
+			\label{fig:SobelMultidirectionnelCouleur}
+		\end{minipage}\hfill
+		\begin{minipage}[c]{.3\linewidth}
+		\centering
+		\includegraphics[scale=0.25]{Image/filtreMultidirectionnelKirschCouleur.png}
+		\caption{Kirsch Multidirectionnel Couleur}
+		\label{fig:KirschMultidirectionnelCouleur}
+		\end{minipage}
 	\end{figure}
 
 	Le calcul des masques se faisant toujours en un seul passage sur l'image, la complexité ne change pas.
@@ -511,55 +581,69 @@ commentstyle=\it\color{green}, %
 
 \section{Affinage}
 
-	La détection de contours a pour conséquences de générer, pour chaque contours de l'image, des points doubles : l'un correspond à la frontière d'une zone, et l'autre à la frontière de la zone voisine. 
-	L'affinage des contours consiste obtenir de un pixel d'épaisseur. 
-	Pour y parvenir, la méthode d'extraction des maximas locaux dans la direction du gradient a été utilisée.
+	\subsection{Algorithme}
+		La détection de contours a pour conséquences de générer, pour chaque contours de l'image, des points doubles : l'un correspond à la frontière d'une zone, et l'autre à la frontière de la zone voisine. 
+		L'affinage des contours consiste obtenir de un pixel d'épaisseur. 
+		Pour y parvenir, la méthode d'extraction des maximas locaux dans la direction du gradient a été utilisée.
 
-	Le pixel (\textit{m},\textit{n}) est un contour horizontal si : \\
-	$$
-		|G_{v}| > |G_{h}| 
-	$$	
-	$$
-		G(m,n) > S 
-	$$	
-	$$
-		G(m,n) \le G(m - 1, n)\ et\ G(m, n) > G(m + 1, n) 
-    $$
+		Le pixel (\textit{m},\textit{n}) est un contour horizontal si : \\
+		$$
+			|G_{v}| > |G_{h}| 
+		$$	
+		$$
+			G(m,n) > S 
+		$$	
+		$$
+			G(m,n) \le G(m - 1, n)\ et\ G(m, n) > G(m + 1, n) 
+	    $$
 
-    avec : 
-    \begin{itemize}
-	    \item $G_{v}$ le gradient vertical,
-	    \item $G_{h}$ le gradient horizontal,
-	    \item $G$ le module du gradient,
-	    \item $S$ le seuil.
+	    avec : 
+	    \begin{itemize}
+		    \item $G_{v}$ le gradient vertical,
+		    \item $G_{h}$ le gradient horizontal,
+		    \item $G$ le module du gradient,
+		    \item $S$ le seuil.
 
-    \end{itemize}
+	    \end{itemize}
 
-    Le pixel (\textit{m},\textit{n}) est un contour vertical si : \\
-	$$
-		|G_{h}| > |G_{v}| 
-	$$	
-	$$
-		G(m,n) > S 
-	$$	
-	$$
-		G(m,n) \ge G(m, n - 1)\ et\ G(m, n) > G(m , n + 1) 
-    $$
+	    Le pixel (\textit{m},\textit{n}) est un contour vertical si : \\
+		$$
+			|G_{h}| > |G_{v}| 
+		$$	
+		$$
+			G(m,n) > S 
+		$$	
+		$$
+			G(m,n) \ge G(m, n - 1)\ et\ G(m, n) > G(m , n + 1) 
+	    $$
 
-    
 
-    Si un point n'est pas un maximum local, il peut être supprimé. 
-    C’est grâce à cette méthode que nous éliminons entre autre les points doubles générés par l’étape de détection. 
-    La complexité de l’algorithme d’affinage revient toujours à l’ordre d’un parcours de l’image.
+	    Si un point n'est pas un maximum local, il peut être supprimé. 
+	    C’est grâce à cette méthode que nous éliminons entre autre les points doubles générés par l’étape de détection. 
+	    La complexité de l’algorithme d’affinage revient toujours à l’ordre d’un parcours de l’image.
 
-	\begin{figure}[H]
-		\centering
-		\includegraphics[scale=0.25]{Image/affinage.png}
-		\caption{affinage du seuillage Hysteresis (figure \ref{fig:seuilHysteresis})}
-		\label{fig:affinage}
-	\end{figure} 
+    \subsection{Implémentation}
+
+    	La fonction d'affinage utilise une fonction déjà filtrée et seuillé.
+    	Elle récupère également les tableaux des gradients horizontaux et verticaux.
+    	Avec Celà, on applique l'algorithme décrit ci-dessus.
+    	Le points est affiché dans l'image affiné uniquement s'il est un maximum local.
+
+    \subsection{Exemple}
+
+		\begin{figure}[H]
+			\centering
+			\includegraphics[scale=0.25]{Image/affinage.png}
+			\caption{affinage du seuillage Hysteresis (figure \ref{fig:seuilHysteresis})}
+			\label{fig:affinage}
+		\end{figure} 
 
 \section{Conclusion}
+
+	Nous avons réussi à détecter les contours dans une image en utilisant différents masques de convolution. 
+	Quelques imperfections subsistent, mais ces opérateurs nous ont déjà démontré leur efficacité. 
+
+	Pendant ce TP, nous avons implémenté beaucoup d’algorithmes qui ont une complexité de l’ordre de la taille de l’image. 
 
 
 \end{document}

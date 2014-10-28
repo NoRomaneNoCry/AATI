@@ -139,6 +139,7 @@ IplImage filtre::filtreBidirectionnel()
 	int x,y,i,j;
 	int p;
 	CvScalar grad;
+	double direction;
 	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
 	IplImage res = *cvCreateImage(cvGetSize(&img), IPL_DEPTH_8U, 1);
 
@@ -163,8 +164,62 @@ IplImage filtre::filtreBidirectionnel()
 					filtreV[y][x] += p * GV[i][j];
 				}
 			}
-			
 			grad.val[0] = sqrt(filtreH[y][x]*filtreH[y][x] + filtreV[y][x]*filtreV[y][x]);
+			cvSet2D(&res,x,y,grad);
+		}
+	}
+	return res;
+}
+
+IplImage filtre::filtreBidirectionnelCouleur()
+{
+	int x,y,i,j;
+	int p;
+	CvScalar grad;
+	double direction;
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
+	IplImage res = *cvCreateImage(cvGetSize(&img), IPL_DEPTH_8U, 3);
+
+	filtreH.resize(img.width);
+	filtreV.resize(img.width);
+	for (int i = 0; i < img.width; ++i)
+	{
+		filtreH[i].resize(img.height);
+		filtreV[i].resize(img.height);
+	}
+
+	for (x = 1; x < img.height-1; ++x)
+	{
+		for (y = 1; y < img.width-1; ++y)
+		{
+			for (i = 0; i < 3; ++i)
+			{
+				for (j = 0; j < 3; ++j)
+				{
+					p = cvGet2D(&img, x-1+i, y-1+j).val[0]; 
+					filtreH[y][x] += p * GH[i][j];				
+					filtreV[y][x] += p * GV[i][j];
+				}
+			}
+			if(filtreV[y][x] == 0) direction = PI/2;
+			else direction = atan2(filtreH[y][x],filtreV[y][x]);
+			grad.val[0] = grad.val[1] = grad.val[2] = 0; 
+			if(direction >= 0 && direction < PI/2)
+			{
+				grad.val[0] = sqrt(filtreH[y][x]*filtreH[y][x] + filtreV[y][x]*filtreV[y][x]);;
+			}
+			else if(direction >= PI/2 && direction < PI)
+			{
+				grad.val[1] = sqrt(filtreH[y][x]*filtreH[y][x] + filtreV[y][x]*filtreV[y][x]);;
+			}
+			else if(direction < 0 && direction > -PI/2)
+			{
+				grad.val[2] = sqrt(filtreH[y][x]*filtreH[y][x] + filtreV[y][x]*filtreV[y][x]);;
+			}
+			else 
+			{
+				grad.val[0] = grad.val[1] = grad.val[2] = sqrt(filtreH[y][x]*filtreH[y][x] + filtreV[y][x]*filtreV[y][x]);;
+			}
 			cvSet2D(&res,x,y,grad);
 		}
 	}
@@ -217,6 +272,66 @@ IplImage filtre::filtreMultidirectionnel()
 			}
 			
 			grad.val[0] = max(filtreV[y][x],filtreH[y][x],diagD,diagG);
+			cvSet2D(&res,x,y,grad);
+		}
+	}
+	return res;
+}
+
+IplImage filtre::filtreMultidirectionnelCouleur()
+{
+	int x,y,i,j;
+	int diagG, diagD;
+	int p;
+	int maximum;
+	CvScalar grad;
+	IplImage res = *cvCreateImage(cvGetSize(&img), IPL_DEPTH_8U, 3);
+	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
+
+	filtreH.resize(img.width);
+	filtreV.resize(img.width);
+	for (int i = 0; i < img.width; ++i)
+	{
+		filtreH[i].resize(img.height);
+		filtreV[i].resize(img.height);
+	}
+
+	for (x = 1; x < img.height-1; ++x)
+	{
+		for (y = 1; y < img.width-1; ++y)
+		{
+			diagD = diagG = 0;
+			for (i = 0; i < 3; ++i)
+			{
+				for (j = 0; j < 3; ++j)
+				{
+					p = cvGet2D(&img, x-1+i, y-1+j).val[0]; 
+					filtreH[y][x] += p * GH[i][j];				
+					filtreV[y][x] += p * GV[i][j];
+					diagG += p* Diag[i][j];
+					diagD += p* Diag[2-i][2-j];
+				}
+			}
+			
+			maximum = max(filtreV[y][x],filtreH[y][x],diagD,diagG);
+
+			grad.val[0] = grad.val[1] = grad.val[2] = 0; 
+			if(maximum == filtreV[y][x])
+			{
+				grad.val[0] = sqrt(filtreH[y][x]*filtreH[y][x] + filtreV[y][x]*filtreV[y][x]);;
+			}
+			else if(maximum == filtreH[y][x])
+			{
+				grad.val[1] = sqrt(filtreH[y][x]*filtreH[y][x] + filtreV[y][x]*filtreV[y][x]);;
+			}
+			else if(maximum == diagD)
+			{
+				grad.val[2] = sqrt(filtreH[y][x]*filtreH[y][x] + filtreV[y][x]*filtreV[y][x]);;
+			}
+			else if(maximum == diagG)
+			{
+				grad.val[0] = grad.val[1] = grad.val[2] = sqrt(filtreH[y][x]*filtreH[y][x] + filtreV[y][x]*filtreV[y][x]);;
+			}
 			cvSet2D(&res,x,y,grad);
 		}
 	}
