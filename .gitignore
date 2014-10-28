@@ -1,6 +1,7 @@
 #latex
 *.aux
 *.log
+*.toc
 
 *~
 main
