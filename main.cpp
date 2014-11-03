@@ -14,7 +14,7 @@
 
 int main (int argc, char* argv[])
 {
-  IplImage* img = NULL, fil, seuil, affin;
+  IplImage* img = NULL, filb, film, seuil, affin;
   const char* src_path = NULL;
   const char* dst_path = NULL;
 
@@ -34,35 +34,29 @@ int main (int argc, char* argv[])
     fprintf (stderr, "couldn't open image file: %s\n", argv[1]);
     return EXIT_FAILURE;
   }
-  std::cout<<"constructeur"<<std::endl;
 
-  filtre f = filtreSobel(*img);
+  filtre f = filtrePrewitt(*img);
 
+  filb = f.filtreBidirectionnel();
+  cvNamedWindow ("filtre bidirectionnel", CV_WINDOW_AUTOSIZE);
+  cvShowImage ("filtre bidirectionnel", &filb);
 
-  //cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
-  //cvShowImage ("avant", img);
-  //Create trackbar to change contrast
-  fil = f.filtreMultidirectionnelCouleur();
-  std::cout<<"filtre"<<std::endl;
-  cvNamedWindow ("filtre", CV_WINDOW_AUTOSIZE);
-  //cvNamedWindow ("controle", CV_WINDOW_AUTOSIZE);
-  //cvNamedWindow ("seuil", CV_WINDOW_AUTOSIZE);
- // cvNamedWindow ("affinage", CV_WINDOW_AUTOSIZE);
-  cvShowImage ("filtre", &fil);
-  //int Seuillage = 50;
-  //cvCreateTrackbar("Seuillage", "controle", &Seuillage, 255);
-  //seuil = cvCreateImage (cvGetSize (&fil), IPL_DEPTH_8U, 1);
-  //seuillage s = seuillage(fil);
-  //seuil = s.seuilHysteresis(44,60);
- // affin = s.affinage(f);
-  //seuil = s.seuilHysteresis(44,60);
- // cvShowImage("seuil", &seuil);
-  //affin = s.affinage(f);
-  //cvShowImage("affinage", &affin);
+  film = f.filtreMultidirectionnel();
+  cvNamedWindow ("filtre multidirectionnel", CV_WINDOW_AUTOSIZE);
+  cvShowImage ("filtre multidirectionnel", &film);
+
+  cvNamedWindow ("seuillage Hysteresis", CV_WINDOW_AUTOSIZE);
+  cvNamedWindow ("affinage", CV_WINDOW_AUTOSIZE);
+
+  seuillage s = seuillage(film);
+  seuil = s.seuilHysteresis(44,60);
+  affin = s.affinage(f);
+  cvShowImage("seuillage Hysteresis", &seuil);
+  cvShowImage("affinage", &affin);
 
   cvWaitKey(0);
 
-  if (dst_path && !cvSaveImage (dst_path, &fil, NULL))
+  if (dst_path && !cvSaveImage (dst_path, &film, NULL))
   {
     fprintf (stderr, "couldn't write image to file: %s\n", dst_path);
   }
