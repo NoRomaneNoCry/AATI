@@ -55,10 +55,13 @@ public:
 	//filtres 
     IplImage filtreHorizontal();
     IplImage filtreVertical();
+    
     IplImage filtreDiagonalD();
     IplImage filtreDiagonalG();
+
     IplImage filtreBidirectionnel();
     IplImage filtreBidirectionnelCouleur();
+
     IplImage filtreMultidirectionnel();
     IplImage filtreMultidirectionnelCouleur();
 };

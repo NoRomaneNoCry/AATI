@@ -139,7 +139,6 @@ IplImage filtre::filtreBidirectionnel()
 	int x,y,i,j;
 	int p;
 	CvScalar grad;
-	double direction;
 	assert (img.depth == IPL_DEPTH_8U && img.nChannels == 1);
 	IplImage res = *cvCreateImage(cvGetSize(&img), IPL_DEPTH_8U, 1);
 

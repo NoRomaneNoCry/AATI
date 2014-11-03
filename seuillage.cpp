@@ -120,7 +120,7 @@ IplImage seuillage::seuilHysteresis(int unsigned SeuilBas, int unsigned SeuilHau
 		}
 	}
 
-	for (x = 1; x < img.height - 1; ++x)
+	for (x = 1; x < img.height - 1; ++x)	
 	{
 		for (y = 1; y < img.width - 1; ++y)
 		{
@@ -161,8 +161,8 @@ IplImage seuillage::affinage(const filtre& f)
 		{
 			G = cvGet2D(&resSeuillage,i,j).val[0]; 
 		
-			gH = f.getFiltreH(i,j);
-			gV = f.getFiltreV(i,j);
+			gH = f.getFiltreH(j,i);
+			gV = f.getFiltreV(j,i);
 			if(gV > gH)
 			{
 				GM1 = cvGet2D(&resSeuillage,i-1,j).val[0];
