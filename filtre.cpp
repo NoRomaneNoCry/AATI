@@ -1,9 +1,8 @@
 #include <assert.h>
+#include <iostream>
 #include <math.h>
 
 #include "filtre.h"
-#include <iostream>
-
 
 #define PI 3.14159265
 

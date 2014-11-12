@@ -1,9 +1,9 @@
 #ifndef SEUILLAGE_H
 #define SEUILLAGE_H 
 
-#include <opencv/highgui.h>
-#include <iostream>
 #include <assert.h>
+#include <iostream>
+#include <opencv/highgui.h>
 
 #include "filtre.h"
 

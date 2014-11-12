@@ -1,8 +1,9 @@
 #ifndef FILTRE_H
 #define FILTRE_H
+
 #include <iostream>
-#include <vector>
 #include <opencv/highgui.h>
+#include <vector>
 
 class filtre
 {

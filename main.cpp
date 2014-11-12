@@ -1,29 +1,30 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <assert.h>
-#include <opencv/highgui.h>
 #include <algorithm>
+#include <assert.h>
+#include <cv.h>
+#include <iostream>
+#include <highgui.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "filtre.h"
+#include "filtreKirsch.h"
 #include "filtrePrewitt.h"
 #include "filtreSobel.h"
-#include "filtreKirsch.h"
+#include "Hough.h"
 #include "seuillage.h"
 
-
+/*
 int main (int argc, char* argv[])
 {
-  IplImage* img = NULL/*, filb, film, seuil, affin, filbc;*/; 
+  IplImage* img = NULL; 
   IplImage imgfil;
   IplImage imgSeuil;
   IplImage imgAffine;
   filtre fil;
   const char* src_path = NULL;
   const char* dst_path = NULL;
-  char * aff = NULL;
   bool ok = false;
-  int f, m, s, sf, sh = -1,sb = -1;
+  int f, m, s, sf, sh = -1,sb = -1, aff;
 
   if (argc < 2)
   {
@@ -167,17 +168,16 @@ int main (int argc, char* argv[])
     }
   }
 
-  std::cout<<"affiner les contour ? (O/N)"<<std::endl;  
+  std::cout<<"affiner les contour ? (0/1)"<<std::endl;  
 
-  while(aff != NULL && strcmp(aff,"O") != 0 && strcmp(aff,"o") != 0 
-    && strcmp(aff,"N") != 0 && strcmp(aff,"n") != 0)
+  std::cin>>aff;
+  std::cout<<aff<<std::endl;
+
+  if(aff == 1)
   {
-    std::cin>>aff;
-    if(strcmp(aff,"O") == 0 || strcmp(aff,"o") == 0)
-    {
-      imgAffine = seuil.affinage(fil);
-    }
+    imgAffine = seuil.affinage(fil);
   }
+  
 
 
   cvNamedWindow ("image filtrée", CV_WINDOW_AUTOSIZE);
@@ -186,9 +186,12 @@ int main (int argc, char* argv[])
   cvNamedWindow ("image seuillée", CV_WINDOW_AUTOSIZE);
   cvShowImage ("image seuillée", &imgSeuil);
   cvWaitKey(0);
+  cvNamedWindow ("image affinée", CV_WINDOW_AUTOSIZE);
+  cvShowImage ("image affinée", &imgAffine);
+  cvWaitKey(0);
 
 
-/*
+
   filtre f = filtrePrewitt(*img);
   filtre fc = filtrePrewitt(*img);
   //cvReleaseImage(&film);
@@ -225,8 +228,71 @@ int main (int argc, char* argv[])
   cvReleaseImage(&img);
   //cvReleaseImage(&fil);
  // cvReleaseImage(&seuil);*/
-  return EXIT_SUCCESS;
+ /* return EXIT_SUCCESS;
 
 
 
+}
+#define CV_NO_BACKWARD_COMPATIBILITY
+*/
+/* This is a standalone program. Pass an image name as a first parameter of the program.
+Switch between standard and probabilistic Hough transform by changing "#if 1" to "#if 0" and back *//*
+#include <cv.h>
+#include <highgui.h>
+#include <math.h>*/
+
+int main(int argc, char** argv)
+{
+  const char* filename = argc >= 2 ? argv[1] : "pic1.png";
+  IplImage* src = cvLoadImage( filename, 0 );
+  IplImage* dst;
+  IplImage* color_dst = NULL;
+  IplImage accu;
+  CvMemStorage* storage = cvCreateMemStorage(0);
+  CvSeq* lines = 0;
+  int i;
+
+  if( !src )  return -1;
+
+  dst = cvCreateImage( cvGetSize(src), 8, 1 );
+  color_dst = cvCreateImage( cvGetSize(src), 8, 3 );
+
+  cvCanny( src, dst, 50, 200, 3 );
+  cvCvtColor( dst, color_dst, CV_GRAY2BGR );
+  /*lines = cvHoughLines2( dst, storage, CV_HOUGH_STANDARD, 1, CV_PI/180, 100, 0, 0 );
+
+  for( i = 0; i < lines->total; i++ )
+  {
+    float* line = (float*)cvGetSeqElem(lines,i);
+    float rho = line[0];
+    float theta = line[1];
+    CvPoint pt1, pt2;
+    double a = cos(theta), b = sin(theta);
+    double x0 = a*rho, y0 = b*rho;
+    pt1.x = cvRound(x0 + 1000*(-b));
+    pt1.y = cvRound(y0 + 1000*(a));
+    pt2.x = cvRound(x0 - 1000*(-b));
+    pt2.y = cvRound(y0 - 1000*(a));
+    cvLine( color_dst, pt1, pt2, CV_RGB(255,0,0), 3, CV_AA, 0 );
+  }*/
+
+ /* lines = cvHoughLines2( dst, storage, CV_HOUGH_PROBABILISTIC, 1, M_PI/180, 50, 50, 10 );
+  for( i = 0; i < lines->total; i++ )
+  {
+    CvPoint* line = (CvPoint*)cvGetSeqElem(lines,i);
+    cvLine( color_dst, line[0], line[1], CV_RGB(255,0,0), 3, CV_AA, 0 );
+  }
+*/
+
+  Hough h(*dst);
+  accu = h.AfficheAccumulateur();
+  cvNamedWindow( "Source", 1 );
+  cvShowImage( "Source", src );
+
+  cvNamedWindow( "Hough", 1 );
+  cvShowImage( "Hough", &accu );
+
+  cvWaitKey(0);
+
+  return 0;
 }
