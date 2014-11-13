@@ -248,7 +248,7 @@ int main(int argc, char** argv)
   IplImage* dst;
   IplImage* color_dst = NULL;
   IplImage accu;
-  CvMemStorage* storage = cvCreateMemStorage(0);
+  //CvMemStorage* storage = cvCreateMemStorage(0);
   CvSeq* lines = 0;
   int i;
 
@@ -256,6 +256,7 @@ int main(int argc, char** argv)
 
   dst = cvCreateImage( cvGetSize(src), 8, 1 );
   color_dst = cvCreateImage( cvGetSize(src), 8, 3 );
+  accu = *cvCreateImage( cvGetSize(src), 8, 1);
 
   cvCanny( src, dst, 50, 200, 3 );
   cvCvtColor( dst, color_dst, CV_GRAY2BGR );
@@ -285,7 +286,7 @@ int main(int argc, char** argv)
 */
 
   Hough h(*dst);
-  accu = h.AfficheAccumulateur();
+ // accu = h.AfficheAccumulateur();
   cvNamedWindow( "Source", 1 );
   cvShowImage( "Source", src );
 
@@ -293,6 +294,10 @@ int main(int argc, char** argv)
   cvShowImage( "Hough", &accu );
 
   cvWaitKey(0);
+
+  cvReleaseImage(&src);
+  cvReleaseImage(&dst);
+  cvReleaseImage(&color_dst);
 
   return 0;
 }

@@ -11,7 +11,8 @@ class Hough
         ~Hough();
         void vote(int x,int y);
         std::vector<double> gagnant();
-        std::vector<double> rhoThetaToAb(const double rho, const double theta);
+        std::pair<double, double> val(const int i, const int j);    
+        std::pair<double, double> rhoThetaToAb(const double rho, const double theta);
         IplImage AfficheAccumulateur();
 
     private:

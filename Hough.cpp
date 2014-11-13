@@ -6,7 +6,8 @@
 
 Hough::Hough(const IplImage & image): largeur(image.width), hauteur(image.height), img(image)
 {
-    maxRho = (double)sqrt(pow((double)largeur,2) + pow((double)hauteur,2));
+    //maxRho = (double)sqrt(pow((double)largeur,2) + pow((double)hauteur,2));
+    maxRho = (double)sqrt(2)*std::max(largeur, hauteur)/2;
     maxIndexTheta = 360;
     maxIndexRho = (int)(1 + maxRho);
     accumulateur.resize(maxIndexTheta);
@@ -28,16 +29,16 @@ void Hough::vote(int x,int y)
 
     for(int iTheta = 0; iTheta < maxIndexTheta; iTheta++)
     {
-        double theta = ((double)iTheta/maxIndexTheta)*M_PI;
 
         // calcul de rho
-        double rho = x*cos(theta) + y*sin(theta);
+        double rho = x*cos(iTheta) + y*sin(iTheta);
 
         // rho -> index
-        int iRho   = (int) (0.5 + (rho/maxRho+ 0.5)*maxIndexRho );
+      //  int iRho   = (int) (0.5 + (rho/maxRho+ 0.5)*maxIndexRho );
 
         // increment accumulator
-        accumulateur[iTheta][iRho]++;
+        if(rho >= 0)
+            accumulateur[iTheta][rho]++;
     }
 }
 
@@ -71,9 +72,23 @@ std::vector<double> Hough::gagnant()
     return retour;
 }
 
-std::vector<double> Hough::rhoThetaToAb(const double rho, const double theta)
+
+std::pair<double, double> Hough::val(const int iRho, const int iTheta)
 {
-    std::vector<double> retour;
+    std::pair<double, double> retour;
+
+    double rho   = ((double)iRho  / maxIndexRho - 0.5) * maxRho;
+    double theta = ((double)iTheta / maxIndexTheta) * M_PI;
+
+    retour.first = rho;
+    retour.second = theta;
+      
+    return retour;
+}
+
+std::pair<double, double> Hough::rhoThetaToAb(const double rho, const double theta)
+{
+    std::pair<double, double> retour;
 
     double a = 0, b = 0;
 
@@ -88,8 +103,8 @@ std::vector<double> Hough::rhoThetaToAb(const double rho, const double theta)
         b = 0;
     }
 
-    retour.push_back(a);
-    retour.push_back(b);
+    retour.first = a;
+    retour.second = b;
 
     return retour;
 }
@@ -97,13 +112,11 @@ std::vector<double> Hough::rhoThetaToAb(const double rho, const double theta)
 
 IplImage Hough::AfficheAccumulateur()
 {
-    IplImage res = *cvCreateImage( cvSize(maxIndexRho, maxIndexTheta ), IPL_DEPTH_8U, 1 );
-    //IplImage res = *cvCreateImage( cvSize(512, 512), IPL_DEPTH_8U, 1 );
+   // IplImage res = *cvCreateImage( cvSize(maxIndexRho, maxIndexTheta ), IPL_DEPTH_8U, 1 );
+    IplImage res = *cvCreateImage( cvSize(largeur, hauteur), IPL_DEPTH_8U, 1 );
 
-  for (int i = 0; i < img.height; ++i)
-    {
-        for (int j = 0; j < img.width; ++j)
-        {
+  for (int i = 0; i < img.height; ++i) {
+        for (int j = 0; j < img.width; ++j) {
            if(cvGet2D (&img, i, j).val[0] == 255)
                 vote(i,j);
         }
@@ -116,14 +129,16 @@ IplImage Hough::AfficheAccumulateur()
                 max = accumulateur[iTheta][iRho];
         }
     }
-    std::cout<<res.width<<" "<<res.height<<std::endl;
-    std::cout<<maxIndexTheta<<" "<<maxIndexRho<<std::endl;
 
-    for(int iTheta = 0; iTheta < maxIndexTheta; iTheta++) {
-        for(int iRho = 0; iRho < maxIndexRho; iRho++) {
-            double r = 255*accumulateur[iTheta][iRho]/max;
-            //std::cout<<r<<std::endl;
-            cvGet2D(&res, iTheta, iRho).val[0] = (int)r;
+    std::pair<double, double> rhoTheta;
+    std::pair<double, double> xy;
+
+    for(int i = 0; i < maxIndexTheta; i++) {
+        for(int j = 0; j < maxIndexRho; ++j) {
+            rhoTheta = val(j, i);
+            xy = rhoThetaToAb(rhoTheta.second, rhoTheta.first);
+           // if(xy.first != 99999)
+             //   cvGet2D(&res, xy.first, xy.second).val[0] = accumulateur[i][j];
         }
     }
 
