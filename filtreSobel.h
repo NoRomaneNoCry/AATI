@@ -1,7 +1,10 @@
+/*
+CHEMIER Aurélien
+LHOMME Romane
+*/
+
 #ifndef FILTRE_SOBEL_H
 #define FILTRE_SOBEL_H
-
-#include <vector>
 
 #include "filtre.h"
 

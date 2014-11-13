@@ -1,7 +1,9 @@
-#include "filtreKirsch.h"
+/*
+CHEMIER Aurélien
+LHOMME Romane
+*/
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "filtreKirsch.h"
 
 filtreKirsch::filtreKirsch(const IplImage& image): filtre(image)
 {
@@ -10,10 +12,8 @@ filtreKirsch::filtreKirsch(const IplImage& image): filtre(image)
 	getGV(1,0) = -3; 
 	getGV(1,2) = getGV(0,2) = getGV(2,2) = 5; 
 
-	for (int i = 0; i < getNbLigne(); ++i)
-	{
-		for (int j = 0; j < getNbColonne(); ++j)
-		{
+	for (int i = 0; i < getNbLigne(); ++i) {
+		for (int j = 0; j < getNbColonne(); ++j) {
 			getGH(i,j) = getGV(j,i);
 		}
 	}

@@ -1,3 +1,8 @@
+/*
+CHEMIER Aurélien
+LHOMME Romane
+*/
+
 #include <algorithm>
 #include <assert.h>
 #include <cv.h>
@@ -13,13 +18,14 @@
 #include "Hough.h"
 #include "seuillage.h"
 
-/*
 int main (int argc, char* argv[])
 {
   IplImage* img = NULL; 
   IplImage imgfil;
   IplImage imgSeuil;
   IplImage imgAffine;
+  IplImage imgAccumule;
+  IplImage imgDroite;
   filtre fil;
   const char* src_path = NULL;
   const char* dst_path = NULL;
@@ -178,126 +184,32 @@ int main (int argc, char* argv[])
     imgAffine = seuil.affinage(fil);
   }
   
+  Hough h(imgAffine);
+  h.afficheAccumulateur(imgAccumule);
+ // h.afficheDroite(*drt,150);
 
 
   cvNamedWindow ("image filtrée", CV_WINDOW_AUTOSIZE);
   cvShowImage ("image filtrée", &imgfil);
-  cvWaitKey(0);
   cvNamedWindow ("image seuillée", CV_WINDOW_AUTOSIZE);
   cvShowImage ("image seuillée", &imgSeuil);
-  cvWaitKey(0);
   cvNamedWindow ("image affinée", CV_WINDOW_AUTOSIZE);
   cvShowImage ("image affinée", &imgAffine);
-  cvWaitKey(0);
+  cvNamedWindow ("Hough accumulé", CV_WINDOW_AUTOSIZE);
+  cvShowImage ("Hough accumulé", &imgAccumule);
 
-
-
-  filtre f = filtrePrewitt(*img);
-  filtre fc = filtrePrewitt(*img);
-  //cvReleaseImage(&film);
-
-  filb = f.filtreBidirectionnel();
-  cvNamedWindow ("filtre bidirectionnel", CV_WINDOW_AUTOSIZE);
-  cvShowImage ("filtre bidirectionnel", &filb);
-
-
-  filbc = fc.filtreBidirectionnelCouleur();
-  cvNamedWindow ("filtre bidirectionnel Couleur", CV_WINDOW_AUTOSIZE);  
-  cvShowImage ("filtre bidirectionnel Couleur", &filbc);
-
-  film = f.filtreMultidirectionnel();
-  cvNamedWindow ("filtre multidirectionnel", CV_WINDOW_AUTOSIZE);
-  cvShowImage ("filtre multidirectionnel", &film);
-
-  cvNamedWindow ("seuillage Hysteresis", CV_WINDOW_AUTOSIZE);
-  cvNamedWindow ("affinage", CV_WINDOW_AUTOSIZE);
-
-  seuillage s = seuillage(film);
-  seuil = s.seuilHysteresis(44,60);
-  affin = s.affinage(f);
-  cvShowImage("seuillage Hysteresis", &seuil);
-  cvShowImage("affinage", &affin);
 
   cvWaitKey(0);
 
+/*
   if (dst_path && !cvSaveImage (dst_path, &film, NULL))
   {
     fprintf (stderr, "couldn't write image to file: %s\n", dst_path);
-  }
+  }*/
   
   cvReleaseImage(&img);
   //cvReleaseImage(&fil);
  // cvReleaseImage(&seuil);*/
- /* return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 
-
-
-}
-#define CV_NO_BACKWARD_COMPATIBILITY
-*/
-/* This is a standalone program. Pass an image name as a first parameter of the program.
-Switch between standard and probabilistic Hough transform by changing "#if 1" to "#if 0" and back *//*
-#include <cv.h>
-#include <highgui.h>
-#include <math.h>*/
-
-int main(int argc, char** argv)
-{
-  const char* filename = argc >= 2 ? argv[1] : "pic1.png";
-  IplImage* src = cvLoadImage( filename, 0 );
-  IplImage* dst;
-  IplImage* color_dst = NULL;
-  IplImage accu;
-  CvMemStorage* storage = cvCreateMemStorage(0);
-  CvSeq* lines = 0;
-  int i;
-
-  if( !src )  return -1;
-
-  dst = cvCreateImage( cvGetSize(src), 8, 1 );
-  color_dst = cvCreateImage( cvGetSize(src), 8, 3 );
-  accu = *cvCreateImage( cvGetSize(src), 8, 1);
-
-  cvCanny( src, dst, 50, 200, 3 );
-  cvCvtColor( dst, color_dst, CV_GRAY2BGR );
-  /*lines = cvHoughLines2( dst, storage, CV_HOUGH_STANDARD, 1, CV_PI/180, 100, 0, 0 );
-
-  for( i = 0; i < lines->total; i++ )
-  {
-    float* line = (float*)cvGetSeqElem(lines,i);
-    float rho = line[0];
-    float theta = line[1];
-    CvPoint pt1, pt2;
-    double a = cos(theta), b = sin(theta);
-    double x0 = a*rho, y0 = b*rho;
-    pt1.x = cvRound(x0 + 1000*(-b));
-    pt1.y = cvRound(y0 + 1000*(a));
-    pt2.x = cvRound(x0 - 1000*(-b));
-    pt2.y = cvRound(y0 - 1000*(a));
-    cvLine( color_dst, pt1, pt2, CV_RGB(255,0,0), 3, CV_AA, 0 );
-  }*/
-
- /* lines = cvHoughLines2( dst, storage, CV_HOUGH_PROBABILISTIC, 1, M_PI/180, 50, 50, 10 );
-  for( i = 0; i < lines->total; i++ )
-  {
-    CvPoint* line = (CvPoint*)cvGetSeqElem(lines,i);
-    cvLine( color_dst, line[0], line[1], CV_RGB(255,0,0), 3, CV_AA, 0 );
-  }*/
-
-
-  Hough h(*dst);
-  h.AfficheAccumulateur(*color_dst);
-  cvNamedWindow( "Source", 1 );
-  cvShowImage( "Source", src );
-
-  cvNamedWindow( "Hough", 1 );
-  cvShowImage( "Hough", color_dst );
-
-  cvWaitKey(0);
-
-  cvReleaseImage(&src);
-  cvReleaseImage(&dst);
-  cvReleaseImage(&color_dst);
-
-  return 0;
 }

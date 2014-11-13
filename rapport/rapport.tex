@@ -54,6 +54,8 @@ commentstyle=\it\color{green}, %
 \tableofcontents
 \newpage
 
+\part{Filtrage, seuillage et affinage}
+
 \section{Introduction}
 
 	Dans le cadre de ce projet d’analyse d’image, nous devons implémenter une méthode de détection de contours à l’aide des filtres vus en cours. 
@@ -640,6 +642,56 @@ commentstyle=\it\color{green}, %
 			\caption{affinage du seuillage Hysteresis (figure \ref{fig:seuilHysteresis})}
 			\label{fig:affinage}
 		\end{figure} 
+
+
+\part{Partie 2: Hough}
+
+\section{Transformée de Hough}
+
+	\subsection{Détection de droite}
+	La transformée de Hough est une méthode permettant de détecter des droites dans
+	une image, c'est-à-dire un ensemble de points plus ou moins alignés. Cette méthode
+	repose sur le paramétrage d'une droite par un angle $\theta$ et une distance $\rho$ comme définis
+	sur la figure suivante :
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[scale=0.15]{Image/triangle.png}
+		\caption{schéma de la droite}
+		\label{fig:triangle}
+	\end{figure} 
+
+
+	L'équation cartésienne de la droite est : \\
+	$\rho$ = x cos($\theta$)  + y sin($\theta$)
+
+	L'algorithme de Hough utilise une matrice accumulatrice qui représente le plan ($\rho$, $\theta$), de
+	dimensions (p, q) où p est le nombre de valeurs de $\rho$ possibles et q le nombre de valeurs
+	de $\theta$. Pour chaque point (x, y) de l'image binaire traitée, chaque droite ($\rho$, $\theta$) passant
+	par ce point ajoute une unité dans l'élément correspondant de la matrice. 
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[scale=0.25]{Image/accumulateur.png}
+		\caption{accumulateur de Lena}
+		\label{fig:triangle}
+	\end{figure} 
+
+	À la fin de l'accumulation, les points de la matrice dont la valeur est la plus élevée correspondent
+	à un grand nombre de points alignés sur l'image. 
+	Ces droites sont sélectionnées à partir	d'un seuil local.
+
+	\subsection{Détection de cercle}
+
+	Pour la détection de cercle, le prinicipe est le même en utilisant l'équation de cercle:
+
+	$$ (x-a)^2 + (y-b)^2 - R^2 = 0$$
+
+	avec
+	\begin{itemize}
+	\item $a$ et $b$ les coordonnées du centre du cercle.
+	\item $R$ le rayon du cercle.
+	\end{itemize}
 
 \section{Conclusion}
 

@@ -1,7 +1,10 @@
+/*
+CHEMIER Aurélien
+LHOMME Romane
+*/
+
 #ifndef FILTRE_PREWITT_H
 #define FILTRE_PREWITT_H
-
-#include <vector>
 
 #include "filtre.h"
 

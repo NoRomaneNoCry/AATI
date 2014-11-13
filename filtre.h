@@ -1,7 +1,14 @@
+/*
+CHEMIER Aurélien
+LHOMME Romane
+*/
+
 #ifndef FILTRE_H
 #define FILTRE_H
 
+#include <assert.h>
 #include <iostream>
+#include <math.h>
 #include <opencv/highgui.h>
 #include <vector>
 
@@ -26,7 +33,6 @@ private:
 public:
 	//constructeur / destructeur
 	filtre();
-	filtre(const unsigned int ligne,const unsigned int colonne);
 	filtre(const filtre &f);
 	filtre(const IplImage& image);
 	~filtre();

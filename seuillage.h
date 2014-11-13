@@ -1,3 +1,8 @@
+/*
+CHEMIER Aurélien
+LHOMME Romane
+*/
+
 #ifndef SEUILLAGE_H
 #define SEUILLAGE_H 
 
@@ -13,6 +18,7 @@ private:
 	IplImage img;
 	IplImage resSeuillage;
 public:
+	/*constructeur*/
 	seuillage();
 	seuillage(IplImage image);
 	~seuillage();

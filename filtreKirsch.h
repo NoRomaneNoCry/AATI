@@ -1,7 +1,10 @@
+/*
+CHEMIER Aurélien
+LHOMME Romane
+*/
+
 #ifndef FILTRE_KIRSCH_H
 #define FILTRE_KIRSCH_H
-
-#include <vector>
 
 #include "filtre.h"
 

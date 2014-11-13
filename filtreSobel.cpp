@@ -1,7 +1,9 @@
-#include "filtreSobel.h"
+/*
+CHEMIER Aurélien
+LHOMME Romane
+*/
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "filtreSobel.h"
 
 filtreSobel::filtreSobel(const IplImage& image): filtre(image)
 {
@@ -10,10 +12,8 @@ filtreSobel::filtreSobel(const IplImage& image): filtre(image)
 	getGV(1,2) = -2;
 	getGV(0,2) = getGV(2,2) = -1;
 
-	for (int i = 0; i < getNbLigne(); ++i)
-	{
-		for (int j = 0; j < getNbColonne(); ++j)
-		{
+	for (int i = 0; i < getNbLigne(); ++i) {
+		for (int j = 0; j < getNbColonne(); ++j) {
 			getGH(i,j) = getGV(j,i);
 		}
 	}
