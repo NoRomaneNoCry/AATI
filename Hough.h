@@ -13,7 +13,7 @@ class Hough
         std::vector<double> gagnant();
         std::pair<double, double> val(const int i, const int j);    
         std::pair<double, double> rhoThetaToAb(const double rho, const double theta);
-        IplImage AfficheAccumulateur();
+        void AfficheAccumulateur(IplImage &res);
 
     private:
         int largeur,hauteur;

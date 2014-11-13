@@ -6,8 +6,8 @@
 
 Hough::Hough(const IplImage & image): largeur(image.width), hauteur(image.height), img(image)
 {
-    //maxRho = (double)sqrt(pow((double)largeur,2) + pow((double)hauteur,2));
-    maxRho = (double)sqrt(2)*std::max(largeur, hauteur)/2;
+    maxRho = (double)sqrt(pow((double)largeur,2) + pow((double)hauteur,2));
+    //maxRho = (double)sqrt(2)*std::max(largeur, hauteur)/2;
     maxIndexTheta = 360;
     maxIndexRho = (int)(1 + maxRho);
     accumulateur.resize(maxIndexTheta);
@@ -24,21 +24,21 @@ Hough::~Hough()
 
 void Hough::vote(int x,int y)
 {
-    x -= largeur/2;
+      x -= largeur/2;
     y -= hauteur/2;
 
     for(int iTheta = 0; iTheta < maxIndexTheta; iTheta++)
     {
+        double theta = ((double)iTheta/maxIndexTheta)*M_PI;
 
         // calcul de rho
-        double rho = x*cos(iTheta) + y*sin(iTheta);
+        double rho = x*cos(theta) + y*sin(theta);
 
         // rho -> index
-      //  int iRho   = (int) (0.5 + (rho/maxRho+ 0.5)*maxIndexRho );
+        int iRho   = (int) (0.5 + (rho/maxRho+ 0.5)*maxIndexRho );
 
         // increment accumulator
-        if(rho >= 0)
-            accumulateur[iTheta][rho]++;
+        accumulateur[iTheta][iRho]++;
     }
 }
 
@@ -110,10 +110,10 @@ std::pair<double, double> Hough::rhoThetaToAb(const double rho, const double the
 }
 
 
-IplImage Hough::AfficheAccumulateur()
+void Hough::AfficheAccumulateur(IplImage &res)
 {
-   // IplImage res = *cvCreateImage( cvSize(maxIndexRho, maxIndexTheta ), IPL_DEPTH_8U, 1 );
-    IplImage res = *cvCreateImage( cvSize(largeur, hauteur), IPL_DEPTH_8U, 1 );
+   res = *cvCreateImage( cvSize(maxIndexRho, maxIndexTheta ), IPL_DEPTH_8U, 1 );
+    //IplImage res = *cvCreateImage( cvSize(largeur, hauteur), IPL_DEPTH_8U, 1 );
 
   for (int i = 0; i < img.height; ++i) {
         for (int j = 0; j < img.width; ++j) {
@@ -132,16 +132,20 @@ IplImage Hough::AfficheAccumulateur()
 
     std::pair<double, double> rhoTheta;
     std::pair<double, double> xy;
+    CvScalar grad;
 
     for(int i = 0; i < maxIndexTheta; i++) {
         for(int j = 0; j < maxIndexRho; ++j) {
-            rhoTheta = val(j, i);
-            xy = rhoThetaToAb(rhoTheta.second, rhoTheta.first);
-           // if(xy.first != 99999)
-             //   cvGet2D(&res, xy.first, xy.second).val[0] = accumulateur[i][j];
-        }
+           // rhoTheta = val(j, i);
+           // xy = rhoThetaToAb(rhoTheta.second, rhoTheta.first);
+            //if(xy.first != 99999)
+                //cvGet2D(&res, i, j).val[0] = 255;
+
+                grad.val[0] = accumulateur[i][j];
+                cvSet2D(&res,i,j,grad);
+            }
     }
 
     std::cout<<"fin"<<std::endl;
-    return res;
+    //return res;
 }

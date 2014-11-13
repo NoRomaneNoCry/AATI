@@ -248,7 +248,7 @@ int main(int argc, char** argv)
   IplImage* dst;
   IplImage* color_dst = NULL;
   IplImage accu;
-  //CvMemStorage* storage = cvCreateMemStorage(0);
+  CvMemStorage* storage = cvCreateMemStorage(0);
   CvSeq* lines = 0;
   int i;
 
@@ -282,16 +282,16 @@ int main(int argc, char** argv)
   {
     CvPoint* line = (CvPoint*)cvGetSeqElem(lines,i);
     cvLine( color_dst, line[0], line[1], CV_RGB(255,0,0), 3, CV_AA, 0 );
-  }
-*/
+  }*/
+
 
   Hough h(*dst);
- // accu = h.AfficheAccumulateur();
+  h.AfficheAccumulateur(*color_dst);
   cvNamedWindow( "Source", 1 );
   cvShowImage( "Source", src );
 
   cvNamedWindow( "Hough", 1 );
-  cvShowImage( "Hough", &accu );
+  cvShowImage( "Hough", color_dst );
 
   cvWaitKey(0);
 
